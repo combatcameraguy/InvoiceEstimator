@@ -404,14 +404,26 @@
                     </div>
                 </div>
                 
-                <!-- Project Basics -->
+                <!-- Timeline Editing -->
                 <div class="section">
-                    <div class="section-title">🎥 Project Details</div>
+                    <div style="display: flex; align-items: start; gap: 15px; margin-bottom: 20px;">
+                        <input type="checkbox" id="timelineEditingEnabled" style="width: 24px; height: 24px; margin-top: 4px; cursor: pointer;">
+                        <div style="flex: 1;">
+                            <label for="timelineEditingEnabled" style="cursor: pointer; margin: 0; font-size: 18px; font-weight: 600; color: #2a5298; display: block;">
+                                ✂️ Timeline Editing
+                            </label>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">
+                                Check this box if you need video editing services (otherwise it's filming + file transfer only)
+                            </p>
+                        </div>
+                    </div>
                     
-                    <div class="form-group">
-                        <label>Final Video Duration <span class="price-note">(Base rate: $40/min)</span></label>
-                        <input type="number" id="duration" min="0.5" max="180" value="1.0" step="0.5">
-                        <small>Approximate length of the finished video in minutes</small>
+                    <div id="timelineEditingFields" style="display: none;">
+                        <div class="form-group">
+                            <label>Final Video Duration</label>
+                            <input type="number" id="duration" min="0.5" max="180" value="1.0" step="0.5">
+                            <small>Tiered pricing: Under 1 min = $100/min | 1-5 min = $60/min | 5+ min = $40/min</small>
+                        </div>
                     </div>
                 </div>
                 
@@ -460,6 +472,23 @@
                                 <option value="multiple">Multiple Locations</option>
                             </select>
                             <small id="locationPriceNote">Studio: $150/hr or $1000/day | Indoor: $180/hr or $1200/day | Outdoor: $200/hr or $1400/day | Multiple: $220/hr or $1600/day</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Raw Footage Minutes <span class="price-note">(For file size estimation)</span></label>
+                            <input type="number" id="rawFootageMinutes" min="1" max="600" value="10" step="1">
+                            <small>Estimated minutes of raw footage to calculate file transfer fee</small>
+                        </div>
+                        
+                        <div class="info-banner">
+                            <h3>📁 Sony FX6 4K File Size Reference</h3>
+                            <p><strong>1 minute:</strong> ~3-5 GB (avg 4 GB)</p>
+                            <p><strong>5 minutes:</strong> ~15-25 GB (avg 20 GB)</p>
+                            <p><strong>10 minutes:</strong> ~30-50 GB (avg 40 GB)</p>
+                            <p><strong>30 minutes:</strong> ~90-150 GB (avg 120 GB)</p>
+                            <p style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
+                                <em>Note: If Final Video Duration is set to 0, a small file transfer fee will be added to cover storage and secure delivery. Transfer fee: $25 base + $25 per 100GB.</em>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -606,6 +635,13 @@
             calculatePrice();
         });
         
+        // Show/hide timeline editing fields
+        document.getElementById('timelineEditingEnabled').addEventListener('change', function() {
+            document.getElementById('timelineEditingFields').style.display = this.checked ? 'block' : 'none';
+            updateItemizedList();
+            calculatePrice();
+        });
+        
         // Show/hide voiceover details
         document.getElementById('voiceover').addEventListener('change', function() {
             document.getElementById('voiceoverDetails').style.display = this.checked ? 'block' : 'none';
@@ -666,14 +702,46 @@
             const items = [];
             let total = 0;
             
-            // Base editing
-            const duration = parseFloat(document.getElementById('duration').value) || 0;
-            const baseEdit = duration * 40;
-            items.push({ name: `Base Video Edit (${duration} min @ $40/min)`, price: baseEdit });
-            total += baseEdit;
+            const timelineEditingEnabled = document.getElementById('timelineEditingEnabled').checked;
+            const duration = timelineEditingEnabled ? (parseFloat(document.getElementById('duration').value) || 0) : 0;
+            
+            // Check if any post-production services are selected
+            const hasPostProduction = duration > 0 || 
+                document.getElementById('basicColor').checked ||
+                document.getElementById('advancedColor').checked ||
+                document.getElementById('fxWork').checked ||
+                document.getElementById('motionGraphics').checked ||
+                document.getElementById('audioMixing').checked ||
+                document.getElementById('soundDesign').checked ||
+                document.getElementById('musicComposition').checked ||
+                document.getElementById('voiceover').checked;
+            
+            // Check if this is file transfer only (filming but no post-production)
+            const filmingRateType = document.getElementById('filmingRateType').value;
+            const isFilming = filmingRateType !== 'none';
+            const isFileTransferOnly = isFilming && !hasPostProduction;
+            
+            if (duration > 0) {
+                // Tiered pricing for editing
+                let editCost = 0;
+                let rateDescription = '';
+                
+                if (duration < 1) {
+                    editCost = duration * 100;
+                    rateDescription = `Base Video Edit (${duration} min @ $100/min)`;
+                } else if (duration <= 5) {
+                    editCost = duration * 60;
+                    rateDescription = `Base Video Edit (${duration} min @ $60/min)`;
+                } else {
+                    editCost = duration * 40;
+                    rateDescription = `Base Video Edit (${duration} min @ $40/min)`;
+                }
+                
+                items.push({ name: rateDescription, price: editCost });
+                total += editCost;
+            }
             
             // Filming services
-            const filmingRateType = document.getElementById('filmingRateType').value;
             if (filmingRateType !== 'none') {
                 const filmingDuration = parseFloat(document.getElementById('filmingDuration').value) || 0;
                 const filmingLocation = document.getElementById('filmingLocation').value;
@@ -710,6 +778,15 @@
                     const filmingCost = filmingDuration * hourlyRates[filmingLocation];
                     items.push({ name: `Filming - ${locationNames[filmingLocation]} (${filmingDuration} hrs @ $${hourlyRates[filmingLocation]}/hr)`, price: filmingCost });
                     total += filmingCost;
+                }
+                
+                // File transfer fee (only if no editing)
+                if (isFileTransferOnly) {
+                    const rawFootageMinutes = parseFloat(document.getElementById('rawFootageMinutes').value) || 0;
+                    const estimatedGB = rawFootageMinutes * 4; // avg 4GB per minute
+                    const transferFee = 25 + (Math.floor(estimatedGB / 100) * 25);
+                    items.push({ name: `File Transfer Fee (~${Math.round(estimatedGB)}GB: $25 base + $25 per 100GB)`, price: transferFee });
+                    total += transferFee;
                 }
             }
             
@@ -797,8 +874,24 @@
         function calculatePrice() {
             let basePrice = 0;
             
+            const timelineEditingEnabled = document.getElementById('timelineEditingEnabled').checked;
+            const duration = timelineEditingEnabled ? (parseFloat(document.getElementById('duration').value) || 0) : 0;
+            
+            // Check if any post-production services are selected
+            const hasPostProduction = duration > 0 || 
+                document.getElementById('basicColor').checked ||
+                document.getElementById('advancedColor').checked ||
+                document.getElementById('fxWork').checked ||
+                document.getElementById('motionGraphics').checked ||
+                document.getElementById('audioMixing').checked ||
+                document.getElementById('soundDesign').checked ||
+                document.getElementById('musicComposition').checked ||
+                document.getElementById('voiceover').checked;
+            
             // Filming services
             const filmingRateType = document.getElementById('filmingRateType').value;
+            const isFilming = filmingRateType !== 'none';
+            const isFileTransferOnly = isFilming && !hasPostProduction;
             
             if (filmingRateType !== 'none') {
                 const filmingDuration = parseFloat(document.getElementById('filmingDuration').value) || 0;
@@ -821,11 +914,26 @@
                     };
                     basePrice += filmingDuration * hourlyRates[filmingLocation];
                 }
+                
+                // File transfer fee (only if no editing)
+                if (isFileTransferOnly) {
+                    const rawFootageMinutes = parseFloat(document.getElementById('rawFootageMinutes').value) || 0;
+                    const estimatedGB = rawFootageMinutes * 4; // avg 4GB per minute
+                    const transferFee = 25 + (Math.floor(estimatedGB / 100) * 25);
+                    basePrice += transferFee;
+                }
             }
             
-            // Base edit
-            const duration = parseFloat(document.getElementById('duration').value) || 0;
-            basePrice += duration * 40;
+            // Base edit (only if duration > 0) with tiered pricing
+            if (duration > 0) {
+                if (duration < 1) {
+                    basePrice += duration * 100;  // Under 1 min: $100/min
+                } else if (duration <= 5) {
+                    basePrice += duration * 60;   // 1-5 min: $60/min
+                } else {
+                    basePrice += duration * 40;   // 5+ min: $40/min
+                }
+            }
             
             // Post-production add-ons
             if (document.getElementById('basicColor').checked) basePrice += 200;
@@ -864,7 +972,7 @@
             }
             
             // Round and display
-            const finalPrice = Math.round(basePrice / 50) * 50;
+            const finalPrice = basePrice >= 50 ? Math.round(basePrice / 50) * 50 : Math.round(basePrice);
             document.getElementById('totalPrice').textContent = finalPrice.toLocaleString();
         }
         
@@ -923,8 +1031,23 @@
                 // Build description for notes field
                 const services = [];
                 
+                // Check if any post-production services are selected
+                const timelineEditingEnabled = document.getElementById('timelineEditingEnabled').checked;
+                const videoDuration = timelineEditingEnabled ? (parseFloat(document.getElementById('duration').value) || 0) : 0;
+                const hasPostProduction = videoDuration > 0 || 
+                    document.getElementById('basicColor').checked ||
+                    document.getElementById('advancedColor').checked ||
+                    document.getElementById('fxWork').checked ||
+                    document.getElementById('motionGraphics').checked ||
+                    document.getElementById('audioMixing').checked ||
+                    document.getElementById('soundDesign').checked ||
+                    document.getElementById('musicComposition').checked ||
+                    document.getElementById('voiceover').checked;
+                
                 // Filming info
                 const filmingRateType = document.getElementById('filmingRateType').value;
+                const isFileTransferOnly = filmingRateType !== 'none' && !hasPostProduction;
+                
                 if (filmingRateType === 'none') {
                     services.push('Filming: Post-Production Only (Client providing footage)');
                 } else if (filmingRateType === 'daily') {
@@ -932,6 +1055,13 @@
                     services.push(`Filming: ${filmingDuration} day(s) - ${document.getElementById('filmingLocation').value} location`);
                 } else {
                     services.push(`Filming: ${document.getElementById('filmingDuration').value} hours - ${document.getElementById('filmingLocation').value} location`);
+                }
+                
+                // Add file transfer info if no editing
+                if (isFileTransferOnly) {
+                    const rawFootageMinutes = document.getElementById('rawFootageMinutes').value;
+                    const estimatedGB = rawFootageMinutes * 4;
+                    services.push(`File Transfer: ~${Math.round(estimatedGB)}GB raw footage (filming only, no editing)`);
                 }
                 
                 // Post-production services
