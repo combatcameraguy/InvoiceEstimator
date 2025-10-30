@@ -364,8 +364,141 @@
             color: #721c24;
         }
         
+        /* Duration Checkbox Styles */
+        .duration-checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .duration-option {
+            position: relative;
+        }
+        
+        .duration-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .duration-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 15px;
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-height: 90px;
+        }
+        
+        .duration-option label:hover {
+            border-color: #2a5298;
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(42, 82, 152, 0.15);
+        }
+        
+        .duration-option input[type="radio"]:checked + label {
+            border-color: #2a5298;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            box-shadow: 0 4px 12px rgba(42, 82, 152, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .duration-option input[type="radio"]:not(:checked) + label {
+            opacity: 0.7;
+        }
+        
+        .duration-option input[type="radio"]:not(:checked) + label:hover {
+            opacity: 1;
+        }
+        
+        .duration-option input[type="radio"]:checked + label .duration-label {
+            color: #1e3c72;
+            font-weight: 700;
+        }
+        
+        .duration-option input[type="radio"]:checked + label .duration-price {
+            color: #2a5298;
+            font-weight: 700;
+        }
+        
+        .duration-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .duration-price {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        /* Enhanced custom duration input styling */
+        .custom-duration-input {
+            animation: slideDown 0.4s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Pulse effect for custom duration when shown */
+        #customDurationInput.show {
+            animation: slideDown 0.4s ease-out, pulse 1.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(42, 82, 152, 0);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(42, 82, 152, 0.1);
+            }
+        }
+        
+        #customDurationInput input {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 3px solid #2a5298;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2a5298;
+            transition: all 0.3s ease;
+        }
+        
+        #customDurationInput input:focus {
+            background: white;
+            box-shadow: 0 0 0 4px rgba(42, 82, 152, 0.1);
+            transform: scale(1.02);
+        }
+        
         @media (max-width: 768px) {
             .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .duration-checkbox-group {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .duration-checkbox-group {
                 grid-template-columns: 1fr;
             }
         }
@@ -379,6 +512,16 @@
         </div>
         
         <div class="content">
+            <div id="errorMessage" class="error-message">
+                <strong>❌ Submission Error</strong>
+                <p id="errorText"></p>
+            </div>
+            
+            <div id="successMessage" class="success-message">
+                <strong>🎉 Request Submitted Successfully!</strong>
+                <p>Thank you! We've received your quote request and will review it shortly. You'll hear from us soon to discuss your project and finalize the details.</p>
+            </div>
+            
             <div class="info-banner">
                 <h3>📦 Filming Services Include Free Hard Drive!</h3>
                 <p><strong>When you book filming services,</strong> we'll provide all raw 4K footage on a complimentary hard drive at no extra cost. This ensures you have full access to all source materials from your shoot.</p>
@@ -391,16 +534,6 @@
             
             <div id="firebaseStatus" class="firebase-status disconnected">
                 🔴 Connecting to server...
-            </div>
-            
-            <div id="errorMessage" class="error-message">
-                <strong>❌ Submission Error</strong>
-                <p id="errorText"></p>
-            </div>
-            
-            <div id="successMessage" class="success-message">
-                <strong>🎉 Request Submitted Successfully!</strong>
-                <p>Thank you! We've received your quote request and will review it shortly. You'll hear from us soon to discuss your project and finalize the details.</p>
             </div>
             
             <form id="quoteForm">
@@ -435,11 +568,33 @@
                     
                     <div class="form-group">
                         <label>Filming Rate Type <span class="required">*</span></label>
-                        <select id="filmingRateType">
-                            <option value="none">Post-Production Only (I have footage)</option>
-                            <option value="daily">Daily Rate (Best for 4+ hours or multi-day)</option>
-                            <option value="hourly">Hourly Rate (Short projects)</option>
-                        </select>
+                        <small style="margin-bottom: 10px; display: block; color: #2a5298; font-weight: 600;">📹 Choose your filming option:</small>
+                        
+                        <div class="duration-checkbox-group" style="grid-template-columns: repeat(3, 1fr);">
+                            <div class="duration-option">
+                                <input type="radio" name="filmingRateChoice" id="filmingNone" value="none" checked>
+                                <label for="filmingNone">
+                                    <span class="duration-label">Post-Production Only</span>
+                                    <span class="duration-price">I have footage</span>
+                                </label>
+                            </div>
+                            
+                            <div class="duration-option">
+                                <input type="radio" name="filmingRateChoice" id="filmingDaily" value="daily">
+                                <label for="filmingDaily">
+                                    <span class="duration-label">Daily Rate</span>
+                                    <span class="duration-price">$650/day</span>
+                                </label>
+                            </div>
+                            
+                            <div class="duration-option">
+                                <input type="radio" name="filmingRateChoice" id="filmingHourly" value="hourly">
+                                <label for="filmingHourly">
+                                    <span class="duration-label">Hourly Rate</span>
+                                    <span class="duration-price">$200/hour</span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                     
                     <div id="filmingOptions" class="sub-input">
@@ -486,24 +641,70 @@
                     <h2 class="section-title">✂️ Post-Production Services</h2>
                     
                     <div class="form-group">
-                        <label>Video Duration (minutes) <span class="price-note">($150/min base editing rate)</span></label>
-                        <input type="number" id="duration" min="0.25" step="0.25" value="2">
-                        <small>For multiple videos, enter the combined duration (e.g., 5 videos × 2 min = 10 minutes)</small>
+                        <label>Video Duration <span class="price-note">($150/min base editing rate)</span></label>
+                        <small style="margin-bottom: 10px; display: block; color: #2a5298; font-weight: 600;">📹 Select your video length (one option only):</small>
+                        
+                        <div class="duration-checkbox-group" style="grid-template-columns: repeat(5, 1fr);">
+                            <div class="duration-option" data-duration="none">
+                                <input type="radio" name="durationChoice" id="durationNone" value="none">
+                                <label for="durationNone">
+                                    <span class="duration-label">Filming Only</span>
+                                    <span class="duration-price">No editing</span>
+                                </label>
+                            </div>
+                            
+                            <div class="duration-option" data-duration="0.25">
+                                <input type="radio" name="durationChoice" id="duration15sec" value="0.25">
+                                <label for="duration15sec">
+                                    <span class="duration-label">15 seconds</span>
+                                    <span class="duration-price">$40</span>
+                                </label>
+                            </div>
+                            
+                            <div class="duration-option" data-duration="0.5">
+                                <input type="radio" name="durationChoice" id="duration30sec" value="0.5">
+                                <label for="duration30sec">
+                                    <span class="duration-label">30 seconds</span>
+                                    <span class="duration-price">$75</span>
+                                </label>
+                            </div>
+                            
+                            <div class="duration-option" data-duration="0.75">
+                                <input type="radio" name="durationChoice" id="duration45sec" value="0.75">
+                                <label for="duration45sec">
+                                    <span class="duration-label">45 seconds</span>
+                                    <span class="duration-price">$120</span>
+                                </label>
+                            </div>
+                            
+                            <div class="duration-option" data-duration="custom">
+                                <input type="radio" name="durationChoice" id="duration1minPlus" value="custom" checked>
+                                <label for="duration1minPlus">
+                                    <span class="duration-label">1 minute+</span>
+                                    <span class="duration-price">Enter below ⬇️</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Custom duration input (shown when 1 minute+ is selected) -->
+                        <div id="customDurationInput" class="sub-input show">
+                            <div class="form-group">
+                                <label>Enter Video Duration (minutes) <span class="required">*</span></label>
+                                <input type="number" id="duration" min="1" step="0.25" value="2" placeholder="e.g., 2.5">
+                                <small>💡 For multiple videos, enter the combined duration (e.g., 5 videos × 2 min = 10 minutes)</small>
+                            </div>
+                        </div>
                     </div>
                     
                     <label style="margin-top: 20px;">Additional Services:</label>
                     <div class="checkbox-group">
                         <div class="checkbox-item" id="basicColorItem">
                             <input type="checkbox" id="basicColor">
-                            <label for="basicColor">Basic Color Correction ($15/min)</label>
+                            <label for="basicColor">Basic Color Correction <span id="basicColorPrice">(Auto-calculated from video duration)</span></label>
                         </div>
                         <div class="checkbox-item" id="advancedColorItem">
                             <input type="checkbox" id="advancedColor">
-                            <label for="advancedColor">Advanced Color Grading ($35/min)</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="fxWork">
-                            <label for="fxWork">Visual Effects ($65/min)</label>
+                            <label for="advancedColor">Advanced Color Grading <span id="advancedColorPrice">($500 flat)</span></label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="audioMixing">
@@ -645,31 +846,42 @@
         // UI LOGIC
         // ========================================
         
+        // Helper function to get selected filming rate type
+        function getFilmingRateType() {
+            const selected = document.querySelector('input[name="filmingRateChoice"]:checked');
+            return selected ? selected.value : 'none';
+        }
+        
         // Filming options toggle
-        document.getElementById('filmingRateType').addEventListener('change', function() {
-            const filmingOptions = document.getElementById('filmingOptions');
-            const rateType = this.value;
-            const durationLabel = document.getElementById('filmingDurationLabel');
-            const durationInput = document.getElementById('filmingDuration');
-            const durationHelp = document.getElementById('filmingDurationHelp');
-            
-            if (rateType === 'none') {
-                filmingOptions.classList.remove('show');
-            } else {
-                filmingOptions.classList.add('show');
+        document.querySelectorAll('input[name="filmingRateChoice"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const filmingOptions = document.getElementById('filmingOptions');
+                const rateType = this.value;
+                const durationLabel = document.getElementById('filmingDurationLabel');
+                const durationInput = document.getElementById('filmingDuration');
+                const durationHelp = document.getElementById('filmingDurationHelp');
                 
-                if (rateType === 'daily') {
-                    durationLabel.textContent = 'Number of Days';
-                    durationInput.value = 1;
-                    durationInput.step = 1;
-                    durationHelp.textContent = '$650 per day (up to 8 hours). Best for multi-day shoots or 4+ hour days.';
+                if (rateType === 'none') {
+                    filmingOptions.classList.remove('show');
                 } else {
-                    durationLabel.textContent = 'Number of Hours';
-                    durationInput.value = 2;
-                    durationInput.step = 0.5;
-                    durationHelp.textContent = '$200 per hour. Best for short projects under 4 hours.';
+                    filmingOptions.classList.add('show');
+                    
+                    if (rateType === 'daily') {
+                        durationLabel.textContent = 'Number of Days';
+                        durationInput.value = 1;
+                        durationInput.step = 1;
+                        durationHelp.textContent = '$650 per day (up to 8 hours). Best for multi-day shoots or 4+ hour days.';
+                    } else {
+                        durationLabel.textContent = 'Number of Hours';
+                        durationInput.value = 2;
+                        durationInput.step = 0.5;
+                        durationHelp.textContent = '$200 per hour. Best for short projects under 4 hours.';
+                    }
                 }
-            }
+                
+                calculatePrice();
+                updateItemizedList();
+            });
         });
         
         // Mutual exclusion between basic and advanced color correction
@@ -686,6 +898,7 @@
                 advancedColorCheckbox.disabled = false;
             }
             
+            updateColorPricingLabels();
             calculatePrice();
             updateItemizedList();
         });
@@ -719,6 +932,40 @@
             options.classList.toggle('show', this.checked);
         });
         
+        // Duration selection handler
+        document.querySelectorAll('input[name="durationChoice"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const customInput = document.getElementById('customDurationInput');
+                const durationField = document.getElementById('duration');
+                
+                if (this.value === 'custom') {
+                    // Show custom input and focus on it
+                    customInput.classList.add('show');
+                    durationField.focus();
+                } else if (this.value === 'none') {
+                    // Filming only - no editing
+                    customInput.classList.remove('show');
+                    durationField.value = 0;
+                } else {
+                    // Hide custom input and set duration from radio button
+                    customInput.classList.remove('show');
+                    durationField.value = this.value;
+                }
+                
+                // Update pricing
+                updateColorPricingLabels();
+                calculatePrice();
+                updateItemizedList();
+            });
+        });
+        
+        // Update when custom duration is manually changed
+        document.getElementById('duration').addEventListener('input', function() {
+            updateColorPricingLabels();
+            calculatePrice();
+            updateItemizedList();
+        });
+        
         // Voiceover toggle
         document.getElementById('voiceover').addEventListener('change', function() {
             const options = document.getElementById('voiceoverOptions');
@@ -731,7 +978,7 @@
         
         function updateItemizedList() {
             const breakdown = [];
-            const filmingRateType = document.getElementById('filmingRateType').value;
+            const filmingRateType = getFilmingRateType();
             
             // Filming costs
             if (filmingRateType !== 'none') {
@@ -808,24 +1055,45 @@
                 });
                 
                 if (document.getElementById('basicColor').checked) {
-                    breakdown.push({
-                        label: `Basic Color Correction: ${duration} min @ $15/min`,
-                        amount: duration * 15
-                    });
+                    if (duration < 1) {
+                        // For videos under 1 minute, charge based on duration
+                        // 15 sec = $40, 30 sec = $75, 45 sec = $120
+                        let cost;
+                        if (duration === 0.25) {
+                            cost = 40; // 15 seconds
+                        } else if (duration === 0.75) {
+                            cost = 120; // 45 seconds
+                        } else {
+                            cost = Math.round(duration * 150);
+                        }
+                        breakdown.push({
+                            label: `Basic Color Correction: ${duration * 60} seconds`,
+                            amount: cost
+                        });
+                    } else {
+                        // FREE for 1+ minute videos
+                        breakdown.push({
+                            label: `Basic Color Correction (FREE for 1+ min videos)`,
+                            amount: 0,
+                            isFree: true
+                        });
+                    }
                 }
                 
                 if (document.getElementById('advancedColor').checked) {
-                    breakdown.push({
-                        label: `Advanced Color Grading: ${duration} min @ $35/min`,
-                        amount: duration * 35
-                    });
-                }
-                
-                if (document.getElementById('fxWork').checked) {
-                    breakdown.push({
-                        label: `Visual Effects: ${duration} min @ $65/min`,
-                        amount: duration * 65
-                    });
+                    if (duration <= 5) {
+                        breakdown.push({
+                            label: `Advanced Color Grading (up to 5 min)`,
+                            amount: 500
+                        });
+                    } else {
+                        const additionalMinutes = duration - 5;
+                        const totalCost = 500 + (additionalMinutes * 90);
+                        breakdown.push({
+                            label: `Advanced Color Grading: $500 + ${additionalMinutes.toFixed(2)} min × $90`,
+                            amount: totalCost
+                        });
+                    }
                 }
                 
                 if (document.getElementById('audioMixing').checked) {
@@ -907,7 +1175,7 @@
             let basePrice = 0;
             
             // Filming
-            const filmingRateType = document.getElementById('filmingRateType').value;
+            const filmingRateType = getFilmingRateType();
             if (filmingRateType !== 'none') {
                 const duration = parseFloat(document.getElementById('filmingDuration').value) || 0;
                 const location = document.getElementById('filmingLocation').value;
@@ -954,9 +1222,29 @@
             if (duration > 0) {
                 basePrice += duration * 150;
                 
-                if (document.getElementById('basicColor').checked) basePrice += duration * 15;
-                if (document.getElementById('advancedColor').checked) basePrice += duration * 35;
-                if (document.getElementById('fxWork').checked) basePrice += duration * 65;
+                // Basic Color Correction
+                if (document.getElementById('basicColor').checked) {
+                    if (duration < 1) {
+                        // For videos under 1 minute, charge by duration increments
+                        const colorDuration = parseInt(document.getElementById('basicColorDuration').value) || 30;
+                        const colorRates = { 5: 20, 10: 40, 15: 60, 30: 80, 45: 80 };
+                        basePrice += colorRates[colorDuration] || 80;
+                    }
+                    // For 1+ minutes, it's FREE (included in base rate)
+                }
+                
+                // Advanced Color Grading
+                if (document.getElementById('advancedColor').checked) {
+                    if (duration <= 5) {
+                        // $500 flat for videos 5 minutes or less
+                        basePrice += 500;
+                    } else {
+                        // $500 + $90 per additional minute over 5 minutes
+                        const additionalMinutes = duration - 5;
+                        basePrice += 500 + (additionalMinutes * 90);
+                    }
+                }
+                
                 if (document.getElementById('audioMixing').checked) basePrice += duration * 45;
                 if (document.getElementById('soundDesign').checked) basePrice += 150;
             }
@@ -991,9 +1279,50 @@
                 basePrice = basePrice * 1.30;
             }
             
-            // Round and display
-            const finalPrice = basePrice >= 50 ? Math.round(basePrice / 50) * 50 : Math.round(basePrice);
+            // Round to nearest dollar, or nearest $50 if over $1000
+            const finalPrice = basePrice > 1000 ? Math.round(basePrice / 50) * 50 : Math.round(basePrice);
             document.getElementById('totalPrice').textContent = finalPrice.toLocaleString();
+            
+            // Update color pricing labels dynamically
+            updateColorPricingLabels();
+        }
+        
+        function updateColorPricingLabels() {
+            const duration = parseFloat(document.getElementById('duration').value) || 0;
+            const basicColorPrice = document.getElementById('basicColorPrice');
+            const advancedColorPrice = document.getElementById('advancedColorPrice');
+            
+            // Basic Color Correction labels - auto-calculated from video duration
+            if (duration < 1) {
+                let cost;
+                if (duration === 0.25) {
+                    cost = 40; // 15 seconds
+                } else if (duration === 0.75) {
+                    cost = 120; // 45 seconds
+                } else {
+                    cost = Math.round(duration * 150);
+                }
+                basicColorPrice.textContent = `($${cost} - auto-calculated from ${duration * 60} sec video)`;
+                basicColorPrice.style.color = '#2a5298';
+                basicColorPrice.style.fontWeight = 'normal';
+            } else {
+                basicColorPrice.textContent = '(FREE for 1+ min videos)';
+                basicColorPrice.style.color = '#28a745';
+                basicColorPrice.style.fontWeight = 'bold';
+            }
+            
+            // Advanced Color Grading labels
+            if (duration <= 5) {
+                advancedColorPrice.textContent = '($500 flat)';
+                advancedColorPrice.style.color = '#2a5298';
+                advancedColorPrice.style.fontWeight = 'normal';
+            } else {
+                const additionalMinutes = duration - 5;
+                const totalCost = 500 + (additionalMinutes * 90);
+                advancedColorPrice.textContent = `($${totalCost.toLocaleString()} = $500 + ${additionalMinutes.toFixed(2)} min × $90)`;
+                advancedColorPrice.style.color = '#2a5298';
+                advancedColorPrice.style.fontWeight = 'normal';
+            }
         }
         
         // Initialize
@@ -1059,7 +1388,7 @@
                 // Build description
                 const services = [];
                 
-                const filmingRateType = document.getElementById('filmingRateType').value;
+                const filmingRateType = getFilmingRateType();
                 const videoDuration = parseFloat(document.getElementById('duration').value) || 0;
                 
                 if (filmingRateType === 'none') {
@@ -1078,7 +1407,6 @@
                 if (videoDuration > 0) services.push(`Video Duration: ${videoDuration} minutes`);
                 if (document.getElementById('basicColor').checked) services.push('Basic Color Correction');
                 if (document.getElementById('advancedColor').checked) services.push('Advanced Color Grading');
-                if (document.getElementById('fxWork').checked) services.push('Visual Effects');
                 if (document.getElementById('motionGraphics').checked) services.push(`Motion Graphics (${document.getElementById('graphicsDuration').value}s, ${document.getElementById('graphicsComplexity').value})`);
                 if (document.getElementById('audioMixing').checked) services.push('Audio Mixing/Mastering');
                 if (document.getElementById('soundDesign').checked) services.push('Sound Design/SFX');
@@ -1160,7 +1488,7 @@
         });
         
         // Trigger initial visibility
-        document.getElementById('filmingRateType').dispatchEvent(new Event('change'));
+        document.querySelector('input[name="filmingRateChoice"]:checked').dispatchEvent(new Event('change'));
     </script>
 </body>
 </html>
