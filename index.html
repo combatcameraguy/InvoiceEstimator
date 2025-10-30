@@ -372,6 +372,28 @@
             margin-top: 15px;
         }
         
+        /* Make filming cards scrollable on mobile */
+        .filming-cards-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #2a5298 #e0e0e0;
+        }
+        
+        .filming-cards-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .filming-cards-wrapper::-webkit-scrollbar-track {
+            background: #e0e0e0;
+            border-radius: 3px;
+        }
+        
+        .filming-cards-wrapper::-webkit-scrollbar-thumb {
+            background: #2a5298;
+            border-radius: 3px;
+        }
+        
         .duration-option {
             position: relative;
         }
@@ -487,19 +509,65 @@
             transform: scale(1.02);
         }
         
+        /* Swipe hint for mobile */
+        .swipe-hint {
+            display: none;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
         @media (max-width: 768px) {
             .checkbox-group {
                 grid-template-columns: 1fr;
             }
             
             .duration-checkbox-group {
-                grid-template-columns: repeat(2, 1fr);
+                display: flex;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x mandatory;
+                gap: 12px;
+                padding-bottom: 10px;
+                scrollbar-width: thin;
+                scrollbar-color: #2a5298 #e0e0e0;
+            }
+            
+            .duration-checkbox-group::-webkit-scrollbar {
+                height: 6px;
+            }
+            
+            .duration-checkbox-group::-webkit-scrollbar-track {
+                background: #e0e0e0;
+                border-radius: 3px;
+            }
+            
+            .duration-checkbox-group::-webkit-scrollbar-thumb {
+                background: #2a5298;
+                border-radius: 3px;
+            }
+            
+            .duration-option {
+                flex: 0 0 45%;
+                scroll-snap-align: start;
+                min-width: 150px;
+            }
+            
+            .duration-option:last-child {
+                margin-right: 20px;
+            }
+            
+            .swipe-hint {
+                display: block;
             }
         }
         
         @media (max-width: 480px) {
-            .duration-checkbox-group {
-                grid-template-columns: 1fr;
+            .duration-option {
+                flex: 0 0 70%;
+                min-width: 200px;
             }
         }
     </style>
@@ -595,6 +663,8 @@
                                 </label>
                             </div>
                         </div>
+                        
+                        <div class="swipe-hint">👈 Swipe to see all options 👉</div>
                     </div>
                     
                     <div id="filmingOptions" class="sub-input">
@@ -685,6 +755,8 @@
                                 </label>
                             </div>
                         </div>
+                        
+                        <div class="swipe-hint">👈 Swipe to see all options 👉</div>
                         
                         <!-- Custom duration input (shown when 1 minute+ is selected) -->
                         <div id="customDurationInput" class="sub-input show">
