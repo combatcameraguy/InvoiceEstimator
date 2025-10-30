@@ -509,6 +509,60 @@
             transform: scale(1.02);
         }
         
+        /* Mobile optimization for custom duration input */
+        @media (max-width: 768px) {
+            #customDurationInput {
+                margin-top: 10px;
+                padding: 15px;
+            }
+            
+            #customDurationInput input {
+                font-size: 16px;
+                padding: 12px;
+                border: 2px solid #2a5298;
+            }
+            
+            #customDurationInput label {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            
+            #customDurationInput small {
+                font-size: 12px;
+                margin-top: 6px;
+            }
+            
+            .section {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .form-group {
+                margin-bottom: 12px;
+            }
+            
+            label {
+                font-size: 14px;
+                margin-bottom: 6px;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+        
         /* Swipe hint for mobile */
         .swipe-hint {
             display: none;
@@ -520,6 +574,35 @@
         }
         
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 8px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            .section {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .section-title {
+                font-size: 16px;
+            }
+            
             .checkbox-group {
                 grid-template-columns: 1fr;
             }
@@ -529,10 +612,14 @@
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 scroll-snap-type: x mandatory;
-                gap: 12px;
+                gap: 10px;
                 padding-bottom: 10px;
                 scrollbar-width: thin;
                 scrollbar-color: #2a5298 #e0e0e0;
+                margin-left: -15px;
+                margin-right: -15px;
+                padding-left: 15px;
+                padding-right: 15px;
             }
             
             .duration-checkbox-group::-webkit-scrollbar {
@@ -550,13 +637,23 @@
             }
             
             .duration-option {
-                flex: 0 0 45%;
-                scroll-snap-align: start;
-                min-width: 150px;
+                flex: 0 0 280px;
+                scroll-snap-align: center;
+                min-width: 280px;
+                max-width: 280px;
             }
             
-            .duration-option:last-child {
-                margin-right: 20px;
+            .duration-option label {
+                padding: 25px 15px;
+                min-height: 100px;
+            }
+            
+            .duration-label {
+                font-size: 17px;
+            }
+            
+            .duration-price {
+                font-size: 15px;
             }
             
             .swipe-hint {
@@ -565,9 +662,49 @@
         }
         
         @media (max-width: 480px) {
+            .header h1 {
+                font-size: 20px;
+            }
+            
             .duration-option {
-                flex: 0 0 70%;
-                min-width: 200px;
+                flex: 0 0 260px;
+                min-width: 260px;
+                max-width: 260px;
+            }
+            
+            .duration-label {
+                font-size: 16px;
+            }
+            
+            .duration-price {
+                font-size: 14px;
+            }
+            
+            input[type="number"], 
+            input[type="text"], 
+            input[type="email"], 
+            textarea, 
+            select {
+                font-size: 16px !important; /* Prevents zoom on iOS */
+            }
+            
+            .btn-primary {
+                padding: 18px 30px;
+                font-size: 18px;
+            }
+            
+            .info-banner {
+                padding: 15px;
+                font-size: 13px;
+            }
+            
+            .info-banner h3 {
+                font-size: 14px;
+            }
+            
+            .disclaimer {
+                padding: 12px;
+                font-size: 12px;
             }
         }
     </style>
@@ -933,6 +1070,21 @@
                 const durationInput = document.getElementById('filmingDuration');
                 const durationHelp = document.getElementById('filmingDurationHelp');
                 
+                // Auto-scroll to center the selected card on mobile
+                if (window.innerWidth <= 768) {
+                    const cardContainer = this.closest('.duration-checkbox-group');
+                    const selectedCard = this.closest('.duration-option');
+                    if (cardContainer && selectedCard) {
+                        const cardRect = selectedCard.getBoundingClientRect();
+                        const containerRect = cardContainer.getBoundingClientRect();
+                        const scrollLeft = selectedCard.offsetLeft - (containerRect.width / 2) + (cardRect.width / 2);
+                        cardContainer.scrollTo({
+                            left: scrollLeft,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+                
                 if (rateType === 'none') {
                     filmingOptions.classList.remove('show');
                 } else {
@@ -1009,6 +1161,21 @@
             radio.addEventListener('change', function() {
                 const customInput = document.getElementById('customDurationInput');
                 const durationField = document.getElementById('duration');
+                
+                // Auto-scroll to center the selected card on mobile
+                if (window.innerWidth <= 768) {
+                    const cardContainer = this.closest('.duration-checkbox-group');
+                    const selectedCard = this.closest('.duration-option');
+                    if (cardContainer && selectedCard) {
+                        const cardRect = selectedCard.getBoundingClientRect();
+                        const containerRect = cardContainer.getBoundingClientRect();
+                        const scrollLeft = selectedCard.offsetLeft - (containerRect.width / 2) + (cardRect.width / 2);
+                        cardContainer.scrollTo({
+                            left: scrollLeft,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
                 
                 if (this.value === 'custom') {
                     // Show custom input and focus on it
