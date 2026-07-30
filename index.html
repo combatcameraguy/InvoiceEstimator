@@ -4,1734 +4,216 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>COMCAM Quote Request</title>
-    
-    <!-- PWA Metadata -->
-    <meta name="description" content="Request a quote for professional video production services">
-    <meta name="theme-color" content="#2a5298">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="COMCAM Quote">
-    
-    <!-- html2pdf.js library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
-    <!-- Firebase SDK v9 (compat mode for easier usage) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 950px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: #2a5298;
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-        
-        .content {
-            padding: 30px;
-        }
-        
-        .info-banner {
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            border: 2px solid #2a5298;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-        
-        .info-banner h3 {
-            color: #1e3c72;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        
-        .info-banner p {
-            color: #1e3c72;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 8px;
-        }
-        
-        .info-banner p:last-child {
-            margin-bottom: 0;
-        }
-        
-        .disclaimer {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 25px;
-        }
-        
-        .disclaimer p {
-            color: #856404;
-            font-size: 13px;
-            line-height: 1.6;
-            margin: 0;
-        }
-        
-        .error-message, .success-message {
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-            font-size: 16px;
-            animation: slideDown 0.3s ease-out;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .error-message {
-            background: #f8d7da;
-            border: 3px solid #dc3545;
-            color: #721c24;
-        }
-        
-        .success-message {
-            background: #d4edda;
-            border: 3px solid #28a745;
-            color: #155724;
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-        }
-        
-        .success-message strong {
-            font-size: 18px;
-            display: block;
-            margin-bottom: 8px;
-        }
-        
-        .error-message.show, .success-message.show {
-            display: block;
-        }
-        
-        .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-        
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2a5298;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #2a5298;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-            font-size: 15px;
-        }
-        
-        label .required {
-            color: #e74c3c;
-        }
-        
-        label .price-note {
-            font-weight: normal;
-            color: #666;
-            font-size: 13px;
-        }
-        
-        select, input[type="number"], input[type="text"], input[type="email"], textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 15px;
-            transition: border-color 0.3s;
-            font-family: inherit;
-        }
-        
-        textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-        
-        select:focus, input:focus, textarea:focus {
-            outline: none;
-            border-color: #2a5298;
-        }
-        
-        select:disabled, input:disabled {
-            background-color: #e9ecef;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-        
-        small {
-            color: #666;
-            font-size: 12px;
-            display: block;
-            margin-top: 5px;
-        }
-        
-        .checkbox-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            background: white;
-            border-radius: 6px;
-        }
-        
-        .checkbox-item.disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-        
-        .checkbox-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-            cursor: pointer;
-        }
-        
-        .checkbox-item label {
-            margin: 0;
-            font-weight: normal;
-            cursor: pointer;
-        }
-        
-        .sub-input {
-            margin-left: 30px;
-            margin-top: 10px;
-            display: none;
-        }
-        
-        .sub-input.show {
-            display: block;
-        }
-        
-        .price-display {
-            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 8px;
-            text-align: center;
-            margin: 25px 0;
-        }
-        
-        .price-display h3 {
-            font-size: 16px;
-            margin-bottom: 10px;
-            opacity: 0.9;
-        }
-        
-        .price-display .price {
-            font-size: 42px;
-            font-weight: bold;
-        }
-        
-        .btn-primary {
-            background: #28a745;
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.3s;
-        }
-        
-        .btn-primary:hover:not(:disabled) {
-            background: #218838;
-        }
-        
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .itemized-list {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        
-        .itemized-list h4 {
-            color: #2a5298;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-        
-        .itemized-list ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .itemized-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-        }
-        
-        .itemized-list li:last-child {
-            border-bottom: none;
-        }
-        
-        .loading-spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #fff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.6s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .firebase-status {
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 13px;
-            text-align: center;
-        }
-        
-        .firebase-status.connected {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .firebase-status.disconnected {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        /* Duration Checkbox Styles */
-        .duration-checkbox-group {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-top: 15px;
-        }
-        
-        /* Make filming cards scrollable on mobile */
-        .filming-cards-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-            scrollbar-color: #2a5298 #e0e0e0;
-        }
-        
-        .filming-cards-wrapper::-webkit-scrollbar {
-            height: 6px;
-        }
-        
-        .filming-cards-wrapper::-webkit-scrollbar-track {
-            background: #e0e0e0;
-            border-radius: 3px;
-        }
-        
-        .filming-cards-wrapper::-webkit-scrollbar-thumb {
-            background: #2a5298;
-            border-radius: 3px;
-        }
-        
-        .duration-option {
-            position: relative;
-        }
-        
-        .duration-option input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-        }
-        
-        .duration-option label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px 15px;
-            background: white;
-            border: 3px solid #e0e0e0;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            min-height: 90px;
-        }
-        
-        .duration-option label:hover {
-            border-color: #2a5298;
-            background: #f8f9fa;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(42, 82, 152, 0.15);
-        }
-        
-        .duration-option input[type="radio"]:checked + label {
-            border-color: #2a5298;
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            box-shadow: 0 4px 12px rgba(42, 82, 152, 0.3);
-            transform: scale(1.05);
-        }
-        
-        .duration-option input[type="radio"]:not(:checked) + label {
-            opacity: 0.7;
-        }
-        
-        .duration-option input[type="radio"]:not(:checked) + label:hover {
-            opacity: 1;
-        }
-        
-        .duration-option input[type="radio"]:checked + label .duration-label {
-            color: #1e3c72;
-            font-weight: 700;
-        }
-        
-        .duration-option input[type="radio"]:checked + label .duration-price {
-            color: #2a5298;
-            font-weight: 700;
-        }
-        
-        .duration-label {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .duration-price {
-            font-size: 14px;
-            color: #666;
-            font-weight: 500;
-        }
-        
-        /* Enhanced custom duration input styling */
-        .custom-duration-input {
-            animation: slideDown 0.4s ease-out;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Pulse effect for custom duration when shown */
-        #customDurationInput.show {
-            animation: slideDown 0.4s ease-out, pulse 1.5s ease-in-out;
-        }
-        
-        @keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(42, 82, 152, 0);
-            }
-            50% {
-                box-shadow: 0 0 0 10px rgba(42, 82, 152, 0.1);
-            }
-        }
-        
-        #customDurationInput input {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border: 3px solid #2a5298;
-            font-size: 18px;
-            font-weight: 600;
-            color: #2a5298;
-            transition: all 0.3s ease;
-        }
-        
-        #customDurationInput input:focus {
-            background: white;
-            box-shadow: 0 0 0 4px rgba(42, 82, 152, 0.1);
-            transform: scale(1.02);
-        }
-        
-        /* Mobile optimization for custom duration input */
-        @media (max-width: 768px) {
-            #customDurationInput {
-                margin-top: 10px;
-                padding: 15px;
-            }
-            
-            #customDurationInput input {
-                font-size: 16px;
-                padding: 12px;
-                border: 2px solid #2a5298;
-            }
-            
-            #customDurationInput label {
-                font-size: 14px;
-                margin-bottom: 8px;
-            }
-            
-            #customDurationInput small {
-                font-size: 12px;
-                margin-top: 6px;
-            }
-            
-            .section {
-                padding: 15px;
-                margin-bottom: 20px;
-            }
-            
-            .form-group {
-                margin-bottom: 12px;
-            }
-            
-            label {
-                font-size: 14px;
-                margin-bottom: 6px;
-            }
-            
-            body {
-                padding: 10px;
-            }
-            
-            .content {
-                padding: 20px;
-            }
-            
-            .header {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 22px;
-            }
-        }
-        
-        /* Swipe hint for mobile */
-        .swipe-hint {
-            display: none;
-            text-align: center;
-            color: #666;
-            font-size: 12px;
-            margin-top: 5px;
-            font-style: italic;
-        }
-        
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
-            .container {
-                border-radius: 8px;
-            }
-            
-            .header {
-                padding: 20px 15px;
-            }
-            
-            .header h1 {
-                font-size: 22px;
-            }
-            
-            .content {
-                padding: 20px 15px;
-            }
-            
-            .section {
-                padding: 15px;
-                margin-bottom: 20px;
-            }
-            
-            .section-title {
-                font-size: 16px;
-            }
-            
-            .checkbox-group {
-                grid-template-columns: 1fr;
-            }
-            
-            .duration-checkbox-group {
-                display: flex;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                scroll-snap-type: x mandatory;
-                gap: 10px;
-                padding: 5px 15px 10px 15px;
-                scrollbar-width: thin;
-                scrollbar-color: #2a5298 #e0e0e0;
-                margin-left: -15px;
-                margin-right: -15px;
-                margin-top: -5px;
-            }
-            
-            .duration-checkbox-group::-webkit-scrollbar {
-                height: 6px;
-            }
-            
-            .duration-checkbox-group::-webkit-scrollbar-track {
-                background: #e0e0e0;
-                border-radius: 3px;
-            }
-            
-            .duration-checkbox-group::-webkit-scrollbar-thumb {
-                background: #2a5298;
-                border-radius: 3px;
-            }
-            
-            .duration-option {
-                flex: 0 0 280px;
-                scroll-snap-align: center;
-                min-width: 280px;
-                max-width: 280px;
-            }
-            
-            .duration-option label {
-                padding: 25px 15px;
-                min-height: 100px;
-            }
-            
-            .duration-label {
-                font-size: 17px;
-            }
-            
-            .duration-price {
-                font-size: 15px;
-            }
-            
-            .swipe-hint {
-                display: block;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 20px;
-            }
-            
-            .duration-option {
-                flex: 0 0 260px;
-                min-width: 260px;
-                max-width: 260px;
-            }
-            
-            .duration-label {
-                font-size: 16px;
-            }
-            
-            .duration-price {
-                font-size: 14px;
-            }
-            
-            input[type="number"], 
-            input[type="text"], 
-            input[type="email"], 
-            textarea, 
-            select {
-                font-size: 16px !important; /* Prevents zoom on iOS */
-            }
-            
-            .btn-primary {
-                padding: 18px 30px;
-                font-size: 18px;
-            }
-            
-            .info-banner {
-                padding: 15px;
-                font-size: 13px;
-            }
-            
-            .info-banner h3 {
-                font-size: 14px;
-            }
-            
-            .disclaimer {
-                padding: 12px;
-                font-size: 12px;
-            }
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; margin: 0; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+        
+        /* Form Styles */
+        fieldset { border: 1px solid #e0e0e0; padding: 20px; margin-bottom: 25px; border-radius: 8px; background-color: #fafafa; }
+        legend { font-weight: bold; color: #34495e; padding: 0 10px; font-size: 1.1em; }
+        label { display: block; margin-top: 15px; font-weight: 600; color: #555; }
+        input[type="text"], input[type="email"], input[type="number"], textarea, select { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
+        .help-text { font-size: 0.85em; color: #7f8c8d; display: block; margin-top: 5px; font-style: italic; }
+
+        /* Option Cards */
+        .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 10px; }
+        .option-card { border: 2px solid #ddd; padding: 15px; border-radius: 6px; cursor: pointer; transition: all 0.2s; position: relative; text-align: center; background: white; }
+        .option-card:hover { border-color: #3498db; background-color: #eaf6ff; }
+        .option-card input { display: none; } 
+        /* Hidden radio hack for styling active state */
+        .option-card.active { border-color: #2980b9; background-color: #ebf5fb; box-shadow: 0 0 5px rgba(41, 128, 185, 0.3); }
+        
+        /* Totals & Buttons */
+        .total-section { background-color: #2c3e50; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-top: 20px; font-size: 1.2em; }
+        .btn-submit { width: 100%; padding: 15px; background-color: #27ae60; color: white; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; margin-top: 20px; transition: background 0.3s; }
+        .btn-submit:hover { background-color: #219150; }
+
+        /* Status Message */
+        #statusMsg { display: none; padding: 15px; margin-bottom: 20px; border-radius: 5px; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎬 COMCAM Video Production</h1>
-            <p>Request a custom quote for your project</p>
+
+<div class="container">
+    <h1>🎬 COMCAM Video Production</h1>
+    <p class="subtitle">Request a custom quote for your project</p>
+
+    <!-- Submission Status -->
+    <div id="statusMsg"></div>
+
+    <form id="quoteForm" onsubmit="handleSubmit(event)">
+        
+        <fieldset>
+            <legend>📋 Your Information</legend>
+            <label>Name *</label>
+            <input type="text" name="name" required>
+            
+            <label>Email *</label>
+            <input type="email" name="email" required>
+            
+            <label>Project Name *</label>
+            <input type="text" name="project_name" required>
+            
+            <label>Project Description (Optional)</label>
+            <textarea name="description" rows="3"></textarea>
+        </fieldset>
+
+        <!-- Updated Filming Section -->
+        <fieldset>
+            <legend>🎥 Filming Services</legend>
+            <label>Filming Package *</label>
+            <div class="options-grid">
+                <label class="option-card active"><input type="radio" name="filming_package" value="4hr" checked onclick="updateActive(this); calculateTotal()"> 4-Hour Half Day ($300)</label>
+                <label class="option-card"><input type="radio" name="filming_package" value="10hr" onclick="updateActive(this); calculateTotal()"> Full Day (10 Hours Max, $500)</label>
+            </div>
+
+            <label for="duration">Number of Packages</label>
+            <input type="number" id="duration" name="duration" min="1" value="1" oninput="calculateTotal()">
+
+            <label>Location Type</label>
+            <div class="options-grid">
+                <!-- Updated to 50 miles -->
+                <label class="option-card active"><input type="radio" name="location" value="local" checked onclick="updateActive(this); calculateTotal()"> 📍 Local (within 50 miles)</label>
+                <!-- Updated text for travel box -->
+                <label class="option-card"><input type="radio" name="location" value="travel" onclick="updateActive(this); calculateTotal()"> ✈️ Travel Required (+$250/day base + flight cost factored later)</label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>✂️ Post-Production Services</legend>
+            
+            <label for="videoDuration">Video Duration (Minutes) *</label>
+            <input type="number" id="videoDuration" name="video_duration" min="0" placeholder="e.g. 15 or 30" oninput="calculateTotal()">
+            <span class="help-text">Professional editing rate: ~$150/min base.</span>
+
+            <label style="margin-top: 20px;">Additional Services</label>
+            <div style="margin-left: 10px; margin-top: 5px;">
+                <input type="checkbox" id="colorCorrection" checked onclick="calculateTotal()"> <label for="colorCorrection" style="display:inline;"> Basic Color Correction (Auto-calculated)</label><br>
+                <input type="checkbox" id="colorGrading" onclick="calculateTotal()"> <label for="colorGrading" style="display:inline;"> Advanced Color Grading ($500 flat)</label><br>
+                <input type="checkbox" id="audioMixing" onclick="calculateTotal()"> <label for="audioMixing" style="display:inline;"> Audio Mixing ($45/min)</label><br>
+                <input type="checkbox" id="soundDesign" onclick="calculateTotal()"> <label for="soundDesign" style="display:inline;"> Sound Design/SFX ($150 flat)</label>
+            </div>
+        </fieldset>
+
+        <!-- Updated Motion Graphics Section (30s Blocks) -->
+        <fieldset>
+            <legend>Motion Graphics / Lower Thirds / Animations</legend>
+            
+            <label for="motionBlocks">Total Animated Duration (Blocks of 30s)</label>
+            <input type="number" id="motionBlocks" name="motion_blocks" min="1" placeholder="Enter number of 30s blocks..." oninput="calculateTotal()">
+            <span class="help-text">Sum of all animated elements in 30-second increments (titles, lower thirds, etc.).</span>
+
+            <label style="margin-top: 20px;">Complexity Level (Price per 30s Block)</label>
+            <div class="options-grid">
+                <label class="option-card active"><input type="radio" name="motion_complexity" value="simple" checked onclick="updateActive(this); calculateTotal()"> 💬 Simple ($15 / 30s) - Lower thirds, basic titles</label>
+                <label class="option-card"><input type="radio" name="motion_complexity" value="moderate" onclick="updateActive(this); calculateTotal()"> 🏷️ Moderate ($35 / 30s) - Animated logos, kinetic typography</label>
+                <label class="option-card"><input type="radio" name="motion_complexity" value="complex" onclick="updateActive(this); calculateTotal()"> 💾 Complex ($65 / 30s) - Photo montages, 3D animation</label>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>🎵 Original Music & Voiceover</legend>
+            
+            <label>Music Type</label>
+            <select name="music_type" onchange="calculateTotal()">
+                <option value="none">No Music</option>
+                <option value="bed" selected>Music Bed - Background Score ($200)</option>
+                <option value="jingle">Jingle - Short Branded Tune ($500)</option>
+            </select>
+
+            <label>Professional Voiceover/Narration Coverage</label>
+            <div class="options-grid" style="margin-top:10px;">
+                <label class="option-card active"><input type="radio" name="voiceover" value="none" checked onclick="updateActive(this); calculateTotal()"> None</label>
+                <label class="option-card"><input type="radio" name="voiceover" value="full" onclick="updateActive(this); calculateTotal()"> 🎤 Full Coverage ($300/min)</label>
+                <label class="option-card"><input type="radio" name="voiceover" value="partial" onclick="updateActive(this); calculateTotal()"> 🗣️ Partial (~50%) ($150/min)</label>
+            </div>
+        </fieldset>
+
+        <div class="total-section">
+            Estimated Total: $<span id="grandTotal">0</span>
+            <p style="font-size: 0.8em; margin-top: 10px;">* Final quote subject to consultation for project planning.</p>
         </div>
+
+        <button type="submit" class="btn-submit">📋 Submit Request</button>
+    </form>
+</div>
+
+<script>
+    // Visual toggle for radio cards
+    function updateActive(el) {
+        const parent = el.closest('.options-grid');
+        parent.querySelectorAll('label').forEach(label => label.classList.remove('active'));
+        el.closest('label').classList.add('active');
+    }
+
+    function calculateTotal() {
+        let total = 0;
+
+        // 1. Filming Cost (Updated to new rates) [2]
+        const packageType = document.querySelector('input[name="filming_package"]:checked').value;
+        const packages = parseFloat(document.getElementById('duration').value) || 1;
+        const isTravel = document.querySelector('input[name="location"]:checked').value === 'travel';
         
-        <div class="content">
-            <div id="errorMessage" class="error-message">
-                <strong>❌ Submission Error</strong>
-                <p id="errorText"></p>
-            </div>
-            
-            <div id="successMessage" class="success-message">
-                <strong>🎉 Request Submitted Successfully!</strong>
-                <p>Thank you! We've received your quote request and will review it shortly. You'll hear from us soon to discuss your project and finalize the details.</p>
-            </div>
-            
-            <div class="info-banner">
-                <h3>📦 Filming Services Include Free Hard Drive!</h3>
-                <p><strong>When you book filming services,</strong> we'll provide all raw 4K footage on a complimentary hard drive at no extra cost. This ensures you have full access to all source materials from your shoot.</p>
-            </div>
-            
-            <div class="disclaimer">
-                <p>⚠️ <strong>Important:</strong> All quote requests go through a consultation process for verification of services and project planning. This ensures we fully understand your needs and can deliver the best results for your project.</p>
-                <p style="margin-top: 10px;">💰 <strong>Pricing Note:</strong> The estimates shown are baseline rates. Final pricing may vary based on project complexity, timeline requirements, and our working relationship. We're happy to discuss pricing details during our consultation!</p>
-            </div>
-            
-            <div id="firebaseStatus" class="firebase-status disconnected">
-                🔴 Connecting to server...
-            </div>
-            
-            <form id="quoteForm">
-                <!-- Your Information Section -->
-                <div class="section">
-                    <h2 class="section-title">📋 Your Information</h2>
-                    
-                    <div class="form-group">
-                        <label>Name <span class="required">*</span></label>
-                        <input type="text" id="clientName" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Email <span class="required">*</span></label>
-                        <input type="email" id="clientEmail" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Project Name <span class="required">*</span></label>
-                        <input type="text" id="projectName" placeholder="e.g., Company Promo Video" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Project Description (Optional)</label>
-                        <textarea id="projectDescription" placeholder="Tell us about your project..."></textarea>
-                    </div>
-                </div>
-                
-                <!-- Filming Services -->
-                <div class="section">
-                    <h2 class="section-title">🎥 Filming Services</h2>
-                    
-                    <div class="form-group">
-                        <label>Filming Rate Type <span class="required">*</span></label>
-                        <small style="margin-bottom: 10px; display: block; color: #2a5298; font-weight: 600;">📹 Choose your filming option:</small>
-                        
-                        <div class="duration-checkbox-group" style="grid-template-columns: repeat(3, 1fr);">
-                            <div class="duration-option">
-                                <input type="radio" name="filmingRateChoice" id="filmingNone" value="none" checked>
-                                <label for="filmingNone">
-                                    <span class="duration-label">Post-Production Only</span>
-                                    <span class="duration-price">I have footage</span>
-                                </label>
-                            </div>
-                            
-                            <div class="duration-option">
-                                <input type="radio" name="filmingRateChoice" id="filmingDaily" value="daily">
-                                <label for="filmingDaily">
-                                    <span class="duration-label">Daily Rate</span>
-                                    <span class="duration-price">$650/day</span>
-                                </label>
-                            </div>
-                            
-                            <div class="duration-option">
-                                <input type="radio" name="filmingRateChoice" id="filmingHourly" value="hourly">
-                                <label for="filmingHourly">
-                                    <span class="duration-label">Hourly Rate</span>
-                                    <span class="duration-price">$200/hour</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="swipe-hint">👈 Swipe to see all options 👉</div>
-                    </div>
-                    
-                    <div id="filmingOptions" class="sub-input">
-                        <div class="form-group">
-                            <label id="filmingDurationLabel">Duration</label>
-                            <input type="number" id="filmingDuration" min="1" step="1" value="1">
-                            <small id="filmingDurationHelp"></small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Location Type <span class="price-note">(Daily: +$0 local / +$250 travel | Hourly: +$0 local / +$100 travel)</span></label>
-                            <select id="filmingLocation">
-                                <option value="local">Local (within 30 miles)</option>
-                                <option value="travel">Travel Required (30+ miles)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Estimated Raw Footage (minutes) <span class="price-note">For hard drive prep</span></label>
-                            <input type="number" id="rawFootageMinutes" min="0" step="15" value="60">
-                            <small>Average: 30-60 min per hour of filming. Used to estimate hard drive size.</small>
-                        </div>
-                        
-                        <!-- Bulk Filming Rates Info -->
-                        <div class="info-banner" style="margin-top: 15px;">
-                            <h3>💰 Daily Rate Bulk Pricing</h3>
-                            <p><strong>Single days:</strong> $650/day</p>
-                            <p><strong>Weekly rate (5-6 days):</strong> $3,000/week (~$600/day - saves $250-$400)</p>
-                            <p><strong>Monthly rate (20-30 days):</strong> $10,000/month (~$400/day - saves $5,000+)</p>
-                            <p style="margin-top: 10px;"><strong>Example project:</strong> 2-week trip (14 days) = 2 weeks × $3,000 + 4 days × $650 = $8,600</p>
-                        </div>
-                        
-                        <!-- Multi-Day Planning Guide -->
-                        <div class="info-banner" style="margin-top: 15px; background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%); border-color: #ffc107;">
-                            <h3>📅 Planning a Multi-Day Shoot?</h3>
-                            <p><strong>Example:</strong> A 2-week filming trip (14 days including travel) with 8 hours of raw footage, producing 5 two-minute final videos with voiceover, music, and animations.</p>
-                            <p><strong>How to quote:</strong> Set Duration to 14 days, Raw Footage to 480 minutes (8 hours), then in Post-Production set Video Duration to 10 minutes (5 videos × 2 min each) and enable the services you need.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Post-Production Services -->
-                <div class="section">
-                    <h2 class="section-title">✂️ Post-Production Services</h2>
-                    
-                    <!-- Editing Rate Explanation -->
-                    <div class="info-banner" style="margin-bottom: 15px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-color: #2196f3;">
-                        <p style="margin: 0; font-size: 14px; color: #1565c0;"><strong>ℹ️ About Editing Rates:</strong> Editing rates are based on final video length. Professional editing typically requires 5-10 hours of work per minute of finished video, including color correction, audio mixing, and revisions.</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Video Duration <span class="price-note">($150/min base editing rate)</span></label>
-                        <small style="margin-bottom: 10px; display: block; color: #2a5298; font-weight: 600;">📹 Select your video length (one option only):</small>
-                        
-                        <div class="duration-checkbox-group" style="grid-template-columns: repeat(5, 1fr);">
-                            <div class="duration-option" data-duration="none">
-                                <input type="radio" name="durationChoice" id="durationNone" value="none">
-                                <label for="durationNone">
-                                    <span class="duration-label">Filming Only</span>
-                                    <span class="duration-price">No editing</span>
-                                </label>
-                            </div>
-                            
-                            <div class="duration-option" data-duration="0.25">
-                                <input type="radio" name="durationChoice" id="duration15sec" value="0.25">
-                                <label for="duration15sec">
-                                    <span class="duration-label">15 seconds</span>
-                                    <span class="duration-price">$40</span>
-                                </label>
-                            </div>
-                            
-                            <div class="duration-option" data-duration="0.5">
-                                <input type="radio" name="durationChoice" id="duration30sec" value="0.5">
-                                <label for="duration30sec">
-                                    <span class="duration-label">30 seconds</span>
-                                    <span class="duration-price">$75</span>
-                                </label>
-                            </div>
-                            
-                            <div class="duration-option" data-duration="0.75">
-                                <input type="radio" name="durationChoice" id="duration45sec" value="0.75">
-                                <label for="duration45sec">
-                                    <span class="duration-label">45 seconds</span>
-                                    <span class="duration-price">$120</span>
-                                </label>
-                            </div>
-                            
-                            <div class="duration-option" data-duration="custom">
-                                <input type="radio" name="durationChoice" id="duration1minPlus" value="custom" checked>
-                                <label for="duration1minPlus">
-                                    <span class="duration-label">1 minute+</span>
-                                    <span class="duration-price">Enter below ⬇️</span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="swipe-hint">👈 Swipe to see all options 👉</div>
-                        
-                        <!-- Custom duration input (shown when 1 minute+ is selected) -->
-                        <div id="customDurationInput" class="sub-input show">
-                            <div class="form-group">
-                                <label>Enter Video Duration (minutes) <span class="required">*</span></label>
-                                <input type="number" id="duration" min="1" step="0.25" value="2" placeholder="e.g., 2.5">
-                                <small>💡 For multiple videos, enter the combined duration (e.g., 5 videos × 2 min = 10 minutes)</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <label style="margin-top: 20px;">Additional Services:</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item" id="basicColorItem">
-                            <input type="checkbox" id="basicColor">
-                            <label for="basicColor">Basic Color Correction <span id="basicColorPrice">(Auto-calculated from video duration)</span></label>
-                        </div>
-                        <div class="checkbox-item" id="advancedColorItem">
-                            <input type="checkbox" id="advancedColor">
-                            <label for="advancedColor">Advanced Color Grading <span id="advancedColorPrice">($500 flat)</span></label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="audioMixing">
-                            <label for="audioMixing">Audio Mixing ($45/min)</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="soundDesign">
-                            <label for="soundDesign">Sound Design/SFX ($150 flat)</label>
-                        </div>
-                    </div>
-                    
-                    <!-- Motion Graphics -->
-                    <div class="checkbox-item" style="margin-top: 15px;">
-                        <input type="checkbox" id="motionGraphics">
-                        <label for="motionGraphics">Motion Graphics / Lower Thirds / Animations</label>
-                    </div>
-                    
-                    <div id="motionGraphicsOptions" class="sub-input">
-                        <div class="form-group">
-                            <label>Total Animated Duration (seconds)</label>
-                            <input type="number" id="graphicsDuration" min="1" step="1" value="30">
-                            <small>Sum of all animated elements (titles, lower thirds, transitions, etc.)</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Complexity Level</label>
-                            <select id="graphicsComplexity">
-                                <option value="simple">Simple ($15/sec) - Lower thirds, basic titles, simple text animations</option>
-                                <option value="moderate">Moderate ($35/sec) - Animated logos, kinetic typography, basic infographics</option>
-                                <option value="complex">Complex ($65/sec) - Photo montages, 3D animation, character animation, fully animated sequences</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Music Composition -->
-                    <div class="checkbox-item" style="margin-top: 15px;">
-                        <input type="checkbox" id="musicComposition">
-                        <label for="musicComposition">Original Music Composition</label>
-                    </div>
-                    
-                    <div id="musicOptions" class="sub-input">
-                        <div class="form-group">
-                            <label>Music Type</label>
-                            <select id="musicType">
-                                <option value="musicBed">Music Bed - Background Score ($200)</option>
-                                <option value="jingle">Jingle - Short Branded Tune ($500)</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Voiceover -->
-                    <div class="checkbox-item" style="margin-top: 15px;">
-                        <input type="checkbox" id="voiceover">
-                        <label for="voiceover">Professional Voiceover/Narration</label>
-                    </div>
-                    
-                    <div id="voiceoverOptions" class="sub-input">
-                        <div class="form-group">
-                            <label>Voiceover Coverage ($300/min of video)</label>
-                            <select id="voiceoverCoverage">
-                                <option value="full">Full Coverage - Voiceover throughout entire video</option>
-                                <option value="partial">Partial Coverage - ~50% of video</option>
-                            </select>
-                            <small>Rate is based on video duration, not script length. Professional voiceover talent at competitive rates (~70% of national union scale).</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Priority Service -->
-                <div class="section">
-                    <h2 class="section-title">⚡ Priority Service</h2>
-                    
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="fastLane">
-                        <label for="fastLane">
-                            <strong>Fast Lane / Rush Delivery (+30%)</strong><br>
-                            <small>Move to front of production queue for faster turnaround</small>
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Price Display -->
-                <div class="price-display">
-                    <h3>Estimated Total</h3>
-                    <div class="price">$<span id="totalPrice">0</span></div>
-                    <small style="opacity: 0.8; display: block; margin-top: 10px;">Final quote subject to consultation</small>
-                </div>
-                
-                <!-- Itemized Breakdown -->
-                <div class="itemized-list">
-                    <h4>📊 Itemized Breakdown</h4>
-                    <ul id="itemizedBreakdown">
-                        <li><span>No services selected</span><span>$0</span></li>
-                    </ul>
-                </div>
-                
-                <button type="submit" class="btn-primary" id="submitBtn">Submit Request</button>
-            </form>
-        </div>
-    </div>
-    
-    <script>
-        // ========================================
-        // FIREBASE CONFIGURATION
-        // ========================================
-        const firebaseConfig = {
-            apiKey: "AIzaSybSLjuPp5h8K6DOnrIGL4iWDUNJC-YVXoY",
-            authDomain: "comcam-dashboard.firebaseapp.com",
-            databaseURL: "https://comcam-dashboard-default-rtdb.firebaseio.com",
-            projectId: "comcam-dashboard",
-            storageBucket: "comcam-dashboard.firebasestorage.app",
-            messagingSenderId: "102412134495",
-            appId: "1:102412134495:web:dc80978df11e1c569093ea"
-        };
-        
-        // Initialize Firebase
-        let database = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            database = firebase.database();
-            
-            // Test connection
-            database.ref('.info/connected').on('value', function(snapshot) {
-                const statusEl = document.getElementById('firebaseStatus');
-                if (snapshot.val() === true) {
-                    statusEl.textContent = '🟢 Connected to server';
-                    statusEl.className = 'firebase-status connected';
-                } else {
-                    statusEl.textContent = '🟡 Reconnecting...';
-                    statusEl.className = 'firebase-status disconnected';
-                }
-            });
-        } catch (error) {
-            console.error('Firebase initialization error:', error);
-            document.getElementById('firebaseStatus').textContent = '🔴 Server connection unavailable - Please check configuration';
+        let filmingCost = 0;
+        // Fixed rates: 4hr ($300) or 10hr ($500) [2]
+        if (packageType === '4hr') filmingCost = 300 * packages;
+        else filmingCost = 500 * packages;
+
+        // Travel Base Fee + Note on flights [2]
+        if (isTravel) {
+            filmingCost += (250 * packages); 
+            // Flights are not added here per the text update: "factored later"
         }
+        total += filmingCost;
+
+        // 2. Post-Production (Editing & Add-ons)
+        const videoDur = parseFloat(document.getElementById('videoDuration').value) || 0;
+        let postProd = videoDur * 150; // Base editing $150/min
+
+        if (document.getElementById('colorGrading').checked) postProd += 500;
+        if (document.getElementById('soundDesign').checked) postProd += 150;
+        if (document.getElementById('audioMixing').checked) postProd += (videoDur * 45);
+
+        total += postProd;
+
+        // 3. Motion Graphics Cost (Updated to 30s Blocks Pricing) [2]
+        const motionBlocks = parseFloat(document.getElementById('motionBlocks').value) || 0;
+        const complexity = document.querySelector('input[name="motion_complexity"]:checked').value;
         
-        // ========================================
-        // UI LOGIC
-        // ========================================
+        let motionCost = 0;
+        // Updated rates: Simple ($15/30s), Moderate ($35/30s), Complex ($65/30s)
+        if (complexity === 'simple') motionCost = motionBlocks * 15;
+        else if (complexity === 'moderate') motionCost = motionBlocks * 35;
+        else if (complexity === 'complex') motionCost = motionBlocks * 65;
         
-        // Helper function to get selected filming rate type
-        function getFilmingRateType() {
-            const selected = document.querySelector('input[name="filmingRateChoice"]:checked');
-            return selected ? selected.value : 'none';
-        }
-        
-        // Filming options toggle
-        document.querySelectorAll('input[name="filmingRateChoice"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const filmingOptions = document.getElementById('filmingOptions');
-                const rateType = this.value;
-                const durationLabel = document.getElementById('filmingDurationLabel');
-                const durationInput = document.getElementById('filmingDuration');
-                const durationHelp = document.getElementById('filmingDurationHelp');
-                
-                // Auto-scroll to center the selected card on mobile
-                if (window.innerWidth <= 768) {
-                    const cardContainer = this.closest('.duration-checkbox-group');
-                    const selectedCard = this.closest('.duration-option');
-                    if (cardContainer && selectedCard) {
-                        const cardRect = selectedCard.getBoundingClientRect();
-                        const containerRect = cardContainer.getBoundingClientRect();
-                        const scrollLeft = selectedCard.offsetLeft - (containerRect.width / 2) + (cardRect.width / 2);
-                        cardContainer.scrollTo({
-                            left: scrollLeft,
-                            behavior: 'smooth'
-                        });
-                    }
-                }
-                
-                if (rateType === 'none') {
-                    filmingOptions.classList.remove('show');
-                } else {
-                    filmingOptions.classList.add('show');
-                    
-                    if (rateType === 'daily') {
-                        durationLabel.textContent = 'Number of Days';
-                        durationInput.value = 1;
-                        durationInput.step = 1;
-                        durationHelp.textContent = '$650 per day (up to 8 hours). Best for multi-day shoots or 4+ hour days.';
-                    } else {
-                        durationLabel.textContent = 'Number of Hours';
-                        durationInput.value = 2;
-                        durationInput.step = 0.5;
-                        durationHelp.textContent = '$200 per hour. Best for short projects under 4 hours.';
-                    }
-                }
-                
-                calculatePrice();
-                updateItemizedList();
-            });
-        });
-        
-        // Mutual exclusion between basic and advanced color correction
-        document.getElementById('basicColor').addEventListener('change', function() {
-            const advancedColorItem = document.getElementById('advancedColorItem');
-            const advancedColorCheckbox = document.getElementById('advancedColor');
-            
-            if (this.checked) {
-                advancedColorItem.classList.add('disabled');
-                advancedColorCheckbox.disabled = true;
-                advancedColorCheckbox.checked = false;
-            } else {
-                advancedColorItem.classList.remove('disabled');
-                advancedColorCheckbox.disabled = false;
-            }
-            
-            updateColorPricingLabels();
-            calculatePrice();
-            updateItemizedList();
-        });
-        
-        document.getElementById('advancedColor').addEventListener('change', function() {
-            const basicColorItem = document.getElementById('basicColorItem');
-            const basicColorCheckbox = document.getElementById('basicColor');
-            
-            if (this.checked) {
-                basicColorItem.classList.add('disabled');
-                basicColorCheckbox.disabled = true;
-                basicColorCheckbox.checked = false;
-            } else {
-                basicColorItem.classList.remove('disabled');
-                basicColorCheckbox.disabled = false;
-            }
-            
-            calculatePrice();
-            updateItemizedList();
-        });
-        
-        // Motion graphics toggle
-        document.getElementById('motionGraphics').addEventListener('change', function() {
-            const options = document.getElementById('motionGraphicsOptions');
-            options.classList.toggle('show', this.checked);
-        });
-        
-        // Music composition toggle
-        document.getElementById('musicComposition').addEventListener('change', function() {
-            const options = document.getElementById('musicOptions');
-            options.classList.toggle('show', this.checked);
-        });
-        
-        // Duration selection handler
-        document.querySelectorAll('input[name="durationChoice"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const customInput = document.getElementById('customDurationInput');
-                const durationField = document.getElementById('duration');
-                
-                // Auto-scroll to center the selected card on mobile
-                if (window.innerWidth <= 768) {
-                    const cardContainer = this.closest('.duration-checkbox-group');
-                    const selectedCard = this.closest('.duration-option');
-                    if (cardContainer && selectedCard) {
-                        const cardRect = selectedCard.getBoundingClientRect();
-                        const containerRect = cardContainer.getBoundingClientRect();
-                        const scrollLeft = selectedCard.offsetLeft - (containerRect.width / 2) + (cardRect.width / 2);
-                        cardContainer.scrollTo({
-                            left: scrollLeft,
-                            behavior: 'smooth'
-                        });
-                    }
-                }
-                
-                if (this.value === 'custom') {
-                    // Show custom input and focus on it
-                    customInput.classList.add('show');
-                    durationField.focus();
-                } else if (this.value === 'none') {
-                    // Filming only - no editing
-                    customInput.classList.remove('show');
-                    durationField.value = 0;
-                } else {
-                    // Hide custom input and set duration from radio button
-                    customInput.classList.remove('show');
-                    durationField.value = this.value;
-                }
-                
-                // Update pricing
-                updateColorPricingLabels();
-                calculatePrice();
-                updateItemizedList();
-            });
-        });
-        
-        // Update when custom duration is manually changed
-        document.getElementById('duration').addEventListener('input', function() {
-            updateColorPricingLabels();
-            calculatePrice();
-            updateItemizedList();
-        });
-        
-        // Voiceover toggle
-        document.getElementById('voiceover').addEventListener('change', function() {
-            const options = document.getElementById('voiceoverOptions');
-            options.classList.toggle('show', this.checked);
-        });
-        
-        // ========================================
-        // PRICE CALCULATION
-        // ========================================
-        
-        function updateItemizedList() {
-            const breakdown = [];
-            const filmingRateType = getFilmingRateType();
-            
-            // Filming costs
-            if (filmingRateType !== 'none') {
-                const duration = parseFloat(document.getElementById('filmingDuration').value) || 0;
-                const location = document.getElementById('filmingLocation').value;
-                
-                if (filmingRateType === 'daily') {
-                    // Calculate bulk pricing breakdown
-                    let remainingDays = duration;
-                    let filmingTotal = 0;
-                    const breakdown_parts = [];
-                    
-                    // Monthly rate
-                    const monthlyDays = Math.floor(remainingDays / 30);
-                    if (monthlyDays > 0) {
-                        const monthlyCost = monthlyDays * 10000;
-                        filmingTotal += monthlyCost;
-                        breakdown_parts.push(`${monthlyDays} month(s) @ $10,000/month`);
-                        remainingDays -= monthlyDays * 30;
-                    }
-                    
-                    // Weekly rate
-                    const weeklyDays = Math.floor(remainingDays / 5);
-                    if (weeklyDays > 0) {
-                        const weeklyCost = weeklyDays * 3000;
-                        filmingTotal += weeklyCost;
-                        breakdown_parts.push(`${weeklyDays} week(s) @ $3,000/week`);
-                        remainingDays -= weeklyDays * 5;
-                    }
-                    
-                    // Daily rate
-                    if (remainingDays > 0) {
-                        const dailyCost = remainingDays * 650;
-                        filmingTotal += dailyCost;
-                        breakdown_parts.push(`${remainingDays} day(s) @ $650/day`);
-                    }
-                    
-                    const breakdown_text = breakdown_parts.join(' + ');
-                    
-                    // Travel fees
-                    const travelFee = location === 'travel' ? duration * 250 : 0;
-                    const finalFilmingTotal = filmingTotal + travelFee;
-                    
-                    breakdown.push({
-                        label: `Filming (${duration} days total): ${breakdown_text}${location === 'travel' ? ' + $' + travelFee + ' travel' : ''}`,
-                        amount: finalFilmingTotal
-                    });
-                } else {
-                    const hourlyRate = 200;
-                    const travelFee = location === 'travel' ? 100 : 0;
-                    const filmingTotal = (duration * hourlyRate) + travelFee;
-                    breakdown.push({
-                        label: `Filming: ${duration} hour(s) @ $${hourlyRate}/hr ${location === 'travel' ? '+ $' + travelFee + ' travel' : ''}`,
-                        amount: filmingTotal
-                    });
-                }
-                
-                // Hard drive note
-                const rawFootage = parseInt(document.getElementById('rawFootageMinutes').value) || 0;
-                const estimatedGB = Math.round(rawFootage * 4);
-                breakdown.push({
-                    label: `📦 Complimentary Hard Drive (~${estimatedGB}GB raw footage)`,
-                    amount: 0,
-                    isFree: true
-                });
-            }
-            
-            // Editing costs
-            const duration = parseFloat(document.getElementById('duration').value) || 0;
-            if (duration > 0) {
-                breakdown.push({
-                    label: `Timeline Editing: ${duration} min @ $150/min`,
-                    amount: duration * 150
-                });
-                
-                if (document.getElementById('basicColor').checked) {
-                    if (duration < 1) {
-                        // For videos under 1 minute, charge based on duration
-                        // 15 sec = $40, 30 sec = $75, 45 sec = $120
-                        let cost;
-                        if (duration === 0.25) {
-                            cost = 40; // 15 seconds
-                        } else if (duration === 0.75) {
-                            cost = 120; // 45 seconds
-                        } else {
-                            cost = Math.round(duration * 150);
-                        }
-                        breakdown.push({
-                            label: `Basic Color Correction: ${duration * 60} seconds`,
-                            amount: cost
-                        });
-                    } else {
-                        // FREE for 1+ minute videos
-                        breakdown.push({
-                            label: `Basic Color Correction (FREE for 1+ min videos)`,
-                            amount: 0,
-                            isFree: true
-                        });
-                    }
-                }
-                
-                if (document.getElementById('advancedColor').checked) {
-                    if (duration <= 5) {
-                        breakdown.push({
-                            label: `Advanced Color Grading (up to 5 min)`,
-                            amount: 500
-                        });
-                    } else {
-                        const additionalMinutes = duration - 5;
-                        const totalCost = 500 + (additionalMinutes * 90);
-                        breakdown.push({
-                            label: `Advanced Color Grading: $500 + ${additionalMinutes.toFixed(2)} min × $90`,
-                            amount: totalCost
-                        });
-                    }
-                }
-                
-                if (document.getElementById('audioMixing').checked) {
-                    breakdown.push({
-                        label: `Audio Mixing: ${duration} min @ $45/min`,
-                        amount: duration * 45
-                    });
-                }
-                
-                if (document.getElementById('soundDesign').checked) {
-                    breakdown.push({
-                        label: 'Sound Design/SFX',
-                        amount: 150
-                    });
-                }
-            }
-            
-            // Motion graphics
-            if (document.getElementById('motionGraphics').checked) {
-                const graphicsDuration = parseInt(document.getElementById('graphicsDuration').value) || 0;
-                const complexity = document.getElementById('graphicsComplexity').value;
-                const rates = { simple: 15, moderate: 35, complex: 65 };
-                breakdown.push({
-                    label: `Motion Graphics: ${graphicsDuration}sec @ $${rates[complexity]}/sec (${complexity})`,
-                    amount: graphicsDuration * rates[complexity]
-                });
-            }
-            
-            // Music
-            if (document.getElementById('musicComposition').checked) {
-                const musicType = document.getElementById('musicType').value;
-                const amount = musicType === 'jingle' ? 500 : 200;
-                const label = musicType === 'jingle' ? 'Music Composition - Jingle' : 'Music Composition - Music Bed';
-                breakdown.push({
-                    label: label,
-                    amount: amount
-                });
-            }
-            
-            // Voiceover
-            if (document.getElementById('voiceover').checked) {
-                const duration = parseFloat(document.getElementById('duration').value) || 0;
-                const coverage = document.getElementById('voiceoverCoverage').value;
-                const multiplier = coverage === 'full' ? 1 : 0.5;
-                const amount = duration * 300 * multiplier;
-                breakdown.push({
-                    label: `Voiceover: ${coverage === 'full' ? 'Full' : 'Partial'} coverage (${duration * multiplier} min @ $300/min)`,
-                    amount: amount
-                });
-            }
-            
-            // Calculate subtotal
-            const subtotal = breakdown.reduce((sum, item) => sum + (item.amount || 0), 0);
-            
-            // Fast Lane
-            if (document.getElementById('fastLane').checked && subtotal > 0) {
-                const fastLaneFee = subtotal * 0.30;
-                breakdown.push({
-                    label: '⚡ Fast Lane / Priority Service (+30%)',
-                    amount: fastLaneFee,
-                    isModifier: true
-                });
-            }
-            
-            // Update UI
-            const listEl = document.getElementById('itemizedBreakdown');
-            if (breakdown.length === 0) {
-                listEl.innerHTML = '<li><span>No services selected</span><span>$0</span></li>';
-            } else {
-                listEl.innerHTML = breakdown.map(item => {
-                    const amountText = item.isFree ? 'FREE' : `$${item.amount.toLocaleString()}`;
-                    const style = item.isModifier ? 'color: #28a745; font-weight: 600;' : (item.isFree ? 'color: #28a745;' : '');
-                    return `<li><span>${item.label}</span><span style="${style}">${amountText}</span></li>`;
-                }).join('');
-            }
-        }
-        
-        function calculatePrice() {
-            let basePrice = 0;
-            
-            // Filming
-            const filmingRateType = getFilmingRateType();
-            if (filmingRateType !== 'none') {
-                const duration = parseFloat(document.getElementById('filmingDuration').value) || 0;
-                const location = document.getElementById('filmingLocation').value;
-                
-                if (filmingRateType === 'daily') {
-                    // Bulk pricing tiers for daily rates
-                    let filmingCost = 0;
-                    let remainingDays = duration;
-                    
-                    // Monthly rate: $10,000 per 30 days
-                    const monthlyDays = Math.floor(remainingDays / 30);
-                    if (monthlyDays > 0) {
-                        filmingCost += monthlyDays * 10000;
-                        remainingDays -= monthlyDays * 30;
-                    }
-                    
-                    // Weekly rate: $3,000 per 5-6 days (we'll use 5 for calculation)
-                    const weeklyDays = Math.floor(remainingDays / 5);
-                    if (weeklyDays > 0) {
-                        filmingCost += weeklyDays * 3000;
-                        remainingDays -= weeklyDays * 5;
-                    }
-                    
-                    // Daily rate: $650 per remaining day
-                    if (remainingDays > 0) {
-                        filmingCost += remainingDays * 650;
-                    }
-                    
-                    basePrice += filmingCost;
-                    
-                    // Travel fees (per day of actual filming)
-                    if (location === 'travel') {
-                        basePrice += duration * 250;
-                    }
-                } else {
-                    // Hourly rate
-                    basePrice += duration * 200;
-                    if (location === 'travel') basePrice += 100;
-                }
-            }
-            
-            // Editing
-            const duration = parseFloat(document.getElementById('duration').value) || 0;
-            if (duration > 0) {
-                basePrice += duration * 150;
-                
-                // Basic Color Correction
-                if (document.getElementById('basicColor').checked) {
-                    if (duration < 1) {
-                        // For videos under 1 minute, charge by duration increments
-                        const colorDuration = parseInt(document.getElementById('basicColorDuration').value) || 30;
-                        const colorRates = { 5: 20, 10: 40, 15: 60, 30: 80, 45: 80 };
-                        basePrice += colorRates[colorDuration] || 80;
-                    }
-                    // For 1+ minutes, it's FREE (included in base rate)
-                }
-                
-                // Advanced Color Grading
-                if (document.getElementById('advancedColor').checked) {
-                    if (duration <= 5) {
-                        // $500 flat for videos 5 minutes or less
-                        basePrice += 500;
-                    } else {
-                        // $500 + $90 per additional minute over 5 minutes
-                        const additionalMinutes = duration - 5;
-                        basePrice += 500 + (additionalMinutes * 90);
-                    }
-                }
-                
-                if (document.getElementById('audioMixing').checked) basePrice += duration * 45;
-                if (document.getElementById('soundDesign').checked) basePrice += 150;
-            }
-            
-            // Motion graphics
-            if (document.getElementById('motionGraphics').checked) {
-                const graphicsDuration = parseInt(document.getElementById('graphicsDuration').value) || 0;
-                const graphicsComplexity = document.getElementById('graphicsComplexity').value;
-                const rates = { simple: 15, moderate: 35, complex: 65 };
-                basePrice += graphicsDuration * rates[graphicsComplexity];
-            }
-            
-            // Music
-            if (document.getElementById('musicComposition').checked) {
-                const musicType = document.getElementById('musicType').value;
-                basePrice += musicType === 'jingle' ? 500 : 200;
-            }
-            
-            // Voiceover
-            if (document.getElementById('voiceover').checked) {
-                const duration = parseFloat(document.getElementById('duration').value) || 0;
-                const voiceoverCoverage = document.getElementById('voiceoverCoverage').value;
-                if (voiceoverCoverage === 'full') {
-                    basePrice += duration * 300;
-                } else {
-                    basePrice += (duration * 0.5) * 300;
-                }
-            }
-            
-            // Fast Lane (+30%)
-            if (document.getElementById('fastLane').checked) {
-                basePrice = basePrice * 1.30;
-            }
-            
-            // Round to nearest dollar, or nearest $50 if over $1000
-            const finalPrice = basePrice > 1000 ? Math.round(basePrice / 50) * 50 : Math.round(basePrice);
-            document.getElementById('totalPrice').textContent = finalPrice.toLocaleString();
-            
-            // Update color pricing labels dynamically
-            updateColorPricingLabels();
-        }
-        
-        function updateColorPricingLabels() {
-            const duration = parseFloat(document.getElementById('duration').value) || 0;
-            const basicColorPrice = document.getElementById('basicColorPrice');
-            const advancedColorPrice = document.getElementById('advancedColorPrice');
-            
-            // Basic Color Correction labels - auto-calculated from video duration
-            if (duration < 1) {
-                let cost;
-                if (duration === 0.25) {
-                    cost = 40; // 15 seconds
-                } else if (duration === 0.75) {
-                    cost = 120; // 45 seconds
-                } else {
-                    cost = Math.round(duration * 150);
-                }
-                basicColorPrice.textContent = `($${cost} - auto-calculated from ${duration * 60} sec video)`;
-                basicColorPrice.style.color = '#2a5298';
-                basicColorPrice.style.fontWeight = 'normal';
-            } else {
-                basicColorPrice.textContent = '(FREE for 1+ min videos)';
-                basicColorPrice.style.color = '#28a745';
-                basicColorPrice.style.fontWeight = 'bold';
-            }
-            
-            // Advanced Color Grading labels
-            if (duration <= 5) {
-                advancedColorPrice.textContent = '($500 flat)';
-                advancedColorPrice.style.color = '#2a5298';
-                advancedColorPrice.style.fontWeight = 'normal';
-            } else {
-                const additionalMinutes = duration - 5;
-                const totalCost = 500 + (additionalMinutes * 90);
-                advancedColorPrice.textContent = `($${totalCost.toLocaleString()} = $500 + ${additionalMinutes.toFixed(2)} min × $90)`;
-                advancedColorPrice.style.color = '#2a5298';
-                advancedColorPrice.style.fontWeight = 'normal';
-            }
-        }
-        
-        // Initialize
-        calculatePrice();
-        updateItemizedList();
-        
-        // Auto-update on changes
-        document.getElementById('quoteForm').addEventListener('change', function() {
-            calculatePrice();
-            updateItemizedList();
-        });
-        
-        document.getElementById('quoteForm').addEventListener('input', function() {
-            calculatePrice();
-            updateItemizedList();
-        });
-        
-        // ========================================
-        // FORM SUBMISSION
-        // ========================================
-        
-        document.getElementById('quoteForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            const successMsg = document.getElementById('successMessage');
-            const errorMsg = document.getElementById('errorMessage');
-            
-            // Hide messages
-            successMsg.classList.remove('show');
-            errorMsg.classList.remove('show');
-            
-            // Validate
-            const clientName = document.getElementById('clientName').value.trim();
-            const clientEmail = document.getElementById('clientEmail').value.trim();
-            const projectName = document.getElementById('projectName').value.trim();
-            
-            if (!clientName || !clientEmail || !projectName) {
-                document.getElementById('errorText').textContent = 'Please fill in all required fields (*)';
-                errorMsg.classList.add('show');
-                return;
-            }
-            
-            // Disable button
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<div class="loading-spinner"></div> Submitting...';
-            
-            try {
-                // Check Firebase connection
-                if (!database) {
-                    throw new Error('Firebase not initialized. Please check your configuration.');
-                }
-                
-                // Generate invoice number
-                const now = new Date();
-                const year = String(now.getFullYear()).slice(-2);
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const invoiceNumber = `${year}${month}${day}-${hours}${minutes}`;
-                
-                // Build description
-                const services = [];
-                
-                const filmingRateType = getFilmingRateType();
-                const videoDuration = parseFloat(document.getElementById('duration').value) || 0;
-                
-                if (filmingRateType === 'none') {
-                    services.push('Filming: Post-Production Only (Client providing footage)');
-                } else if (filmingRateType === 'daily') {
-                    const filmingDuration = document.getElementById('filmingDuration').value;
-                    services.push(`Filming: ${filmingDuration} day(s) - ${document.getElementById('filmingLocation').value} location`);
-                    const rawFootage = document.getElementById('rawFootageMinutes').value;
-                    services.push(`Raw Footage: ${rawFootage} minutes (~${Math.round(rawFootage * 4)}GB)`);
-                } else {
-                    services.push(`Filming: ${document.getElementById('filmingDuration').value} hours - ${document.getElementById('filmingLocation').value} location`);
-                    const rawFootage = document.getElementById('rawFootageMinutes').value;
-                    services.push(`Raw Footage: ${rawFootage} minutes (~${Math.round(rawFootage * 4)}GB)`);
-                }
-                
-                if (videoDuration > 0) services.push(`Video Duration: ${videoDuration} minutes`);
-                if (document.getElementById('basicColor').checked) services.push('Basic Color Correction');
-                if (document.getElementById('advancedColor').checked) services.push('Advanced Color Grading');
-                if (document.getElementById('motionGraphics').checked) services.push(`Motion Graphics (${document.getElementById('graphicsDuration').value}s, ${document.getElementById('graphicsComplexity').value})`);
-                if (document.getElementById('audioMixing').checked) services.push('Audio Mixing/Mastering');
-                if (document.getElementById('soundDesign').checked) services.push('Sound Design/SFX');
-                if (document.getElementById('musicComposition').checked) {
-                    const musicType = document.getElementById('musicType').value;
-                    services.push(musicType === 'jingle' ? 'Music Composition - Jingle' : 'Music Composition - Music Bed');
-                }
-                if (document.getElementById('voiceover').checked) {
-                    const coverage = document.getElementById('voiceoverCoverage').value;
-                    services.push(coverage === 'full' ? 'Voiceover/Narration - Full Coverage' : 'Voiceover/Narration - Partial Coverage');
-                }
-                
-                const isFastLane = document.getElementById('fastLane').checked;
-                const fastLaneText = isFastLane ? '\n\n⚡ FAST LANE / PRIORITY SERVICE (+30%)\nRUSH DELIVERY - Move to front of production line' : '';
-                
-                const description = [
-                    document.getElementById('projectDescription').value || '',
-                    '',
-                    'Services Requested:',
-                    ...services.map(s => `• ${s}`),
-                    fastLaneText,
-                    '',
-                    `Client Email: ${clientEmail}`
-                ].filter(Boolean).join('\n');
-                
-                // Prepare data
-                const quoteData = {
-                    task: projectName,
-                    clientName: clientName,
-                    person: '',
-                    status: 'Not started',
-                    priority: isFastLane ? 'High' : 'Standard',
-                    requestDate: new Date().toISOString().split('T')[0],
-                    dueDate: '',
-                    actualWorkHours: '0',
-                    workHours: '0',
-                    notes: description,
-                    invoiceNumber: invoiceNumber,
-                    totalPrice: document.getElementById('totalPrice').textContent.replace(/,/g, ''),
-                    timeline: '',
-                    source: 'Client Quote Form',
-                    submittedAt: firebase.database.ServerValue.TIMESTAMP
-                };
-                
-                // Submit to Firebase
-                const requestRef = database.ref('requests').push();
-                await requestRef.set(quoteData);
-                
-                // Success
-                successMsg.classList.add('show');
-                submitBtn.innerHTML = '✓ Submitted!';
-                
-                // Scroll to top smoothly so user sees success message (especially on mobile)
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-                
-                // Also scroll the container to top as backup
-                document.querySelector('.container').scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-                
-                // Reset form after delay
-                setTimeout(() => {
-                    if (confirm('Submit another quote request?')) {
-                        location.reload();
-                    }
-                }, 3000);
-                
-            } catch (error) {
-                console.error('Submission error:', error);
-                document.getElementById('errorText').textContent = `Error: ${error.message}`;
-                errorMsg.classList.add('show');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Submit Request';
-            }
-        });
-        
-        // Trigger initial visibility
-        document.querySelector('input[name="filmingRateChoice"]:checked').dispatchEvent(new Event('change'));
-    </script>
+        total += motionCost;
+
+        // 4. Music & Voiceover
+        const musicType = document.querySelector('select[name="music_type"]').value;
+        if (musicType === 'bed') total += 200;
+        if (musicType === 'jingle') total += 500;
+
+        const voiceOver = document.querySelector('input[name="voiceover"]:checked').value;
+        if (voiceOver === 'full') total += (videoDur * 300); // Full coverage per min
+        if (voiceOver === 'partial') total += (videoDur * 150); // Approx 50% per min
+
+        document.getElementById('grandTotal').innerText = total.toLocaleString();
+    }
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        const msgBox = document.getElementById('statusMsg');
+        msgBox.style.display = 'block';
+        msgBox.style.backgroundColor = '#d4edda';
+        msgBox.style.color = '#155724';
+        msgBox.innerHTML = "🎉 Request Submitted Successfully!<br>Thank you! We've received your quote request and will review it shortly. You'll hear from us soon to discuss your project and finalize the details.";
+    }
+
+    // Initial calc
+    calculateTotal();
+</script>
+
 </body>
 </html>
