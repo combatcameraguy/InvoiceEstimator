@@ -329,13 +329,14 @@
             await database.ref('requests').push(requestPayload);
 
             msgBox.style.display = 'block';
+            msgBox.style.borderLeftColor = '#27ae60';
             const body = document.getElementById('body');
             if (body.classList.contains('light-mode')) {
                 msgBox.style.backgroundColor = '#d4edda';
                 msgBox.style.color = '#155724';
             } else {
                 msgBox.style.backgroundColor = '#2c3e50';
-                msgBox.style.color = '#ecf0f1';
+                msgBox.style.color = '#2ecc71';
             }
             
             msgBox.innerHTML = "REQUEST SUBMITTED SUCCESSFULLY.<br>THANK YOU! WE'VE RECEIVED YOUR QUOTE REQUEST AND WILL REVIEW IT SHORTLY. YOU'LL HEAR FROM US SOON TO DISCUSS YOUR PROJECT AND FINALIZE THE DETAILS.";
