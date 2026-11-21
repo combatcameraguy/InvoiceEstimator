@@ -3,67 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMCAM Quote Request</title>
+    <title>COMCAM Video Production</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; margin: 0; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; text-align: center; margin-bottom: 10px; }
-        .subtitle { text-align: center; color: #7f8c8d; margin-bottom: 30px; }
+        /* --- THEME VARIABLES (Default Dark Mode) --- */
+        :root {
+            --bg-primary: #1e272e;
+            --container-bg: #1d2327;
+            --text-primary: #ffcb05;
+            --fieldset-border: #4b5660;
+            --fieldset-bg: #2c3338;
+            --label-color: #aab6bf;
+            --input-bg: #3e4a52;
+            --input-border: #4b5660;
+            --btn-submit: #27ae60;
+            --btn-hover: #219150;
+            --card-border: #4b5660;
+            
+            /* Blue Glow & Icon Colors */
+            --accent-blue: #3498db; 
+            --glow-color: rgba(52, 152, 219, 0.3);
+        }
+
+        /* --- LIGHT MODE OVERRIDES (Optional) --- */
+        body.light-mode {
+            --bg-primary: #6C8087;
+            --container-bg: white;
+            --text-primary: #2c3e50;
+            --fieldset-border: #e0e0e0;
+            --fieldset-bg: #fafafa;
+            --label-color: #555;
+            --input-bg: white;
+            --input-border: #ccc;
+            --btn-submit: #27ae60;
+            --card-border: #ddd;
+            
+            /* Light mode accents */
+            --accent-blue: #3498db; 
+        }
+
+        /* --- MAIN STYLES --- */
+        body { 
+            background-color: var(--bg-primary); 
+            padding: 20px; margin: 0; color: var(--text-primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; background: var(--container-bg); padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: background-color 0.3s ease; }
+
+        h1 { color: var(--text-primary); text-align: center; margin-bottom: 10px; border-bottom: 2px solid var(--accent-blue); display: inline-block; padding-bottom: 8px; margin-top: 0; }
         
         /* Form Styles */
-        fieldset { border: 1px solid #e0e0e0; padding: 20px; margin-bottom: 25px; border-radius: 8px; background-color: #fafafa; }
-        legend { font-weight: bold; color: #34495e; padding: 0 10px; font-size: 1.1em; }
-        label { display: block; margin-top: 15px; font-weight: 600; color: #555; }
-        input[type="text"], input[type="email"], input[type="number"], textarea, select { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
-        .help-text { font-size: 0.85em; color: #7f8c8d; display: block; margin-top: 5px; font-style: italic; }
+        fieldset { border: 1px solid var(--fieldset-border); padding: 30px; margin-bottom: 30px; border-radius: 12px; background-color: var(--fieldset-bg); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        legend { font-weight: 700; color: var(--text-primary); padding: 0 15px; font-size: 1.2em; letter-spacing: 0.5px; }
+        
+        label { display: block; margin-top: 20px; font-weight: 600; color: var(--label-color); cursor: pointer; font-size: 0.95em; transition: color 0.3s ease; }
+        
+        input[type="text"], input[type="email"], input[type="number"], textarea, select { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 5px; 
+            box-sizing: border-box; 
+            border: 1px solid var(--input-border); 
+            border-radius: 6px; 
+            font-size: 1em; 
+            background-color: var(--input-bg); 
+            color: #ecf0f1; 
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
 
         /* Option Cards */
-        .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 10px; }
-        .option-card { border: 2px solid #ddd; padding: 15px; border-radius: 6px; cursor: pointer; transition: all 0.2s; position: relative; text-align: center; background: white; }
-        .option-card:hover { border-color: #3498db; background-color: #eaf6ff; }
+        .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 5px; }
+        .option-card { border: 2px solid var(--card-border); padding: 20px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; position: relative; text-align: center; background: var(--container-bg); color: var(--text-primary); box-shadow: none; }
+        .option-card:hover { 
+            border-color: var(--accent-blue); 
+            background-color: #2a363c; 
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15); /* Subtle Blue Glow */
+        }
         .option-card input { display: none; } 
-        /* Hidden radio hack for styling active state */
-        .option-card.active { border-color: #2980b9; background-color: #ebf5fb; box-shadow: 0 0 5px rgba(41, 128, 185, 0.3); }
-        
+        .option-card.active { border-color: var(--accent-blue); background-color: var(--container-bg); color: var(--text-primary); box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2); /* Blue Glow when Active */ }
+
         /* Totals & Buttons */
-        .total-section { background-color: #2c3e50; color: white; padding: 20px; border-radius: 8px; text-align: center; margin-top: 20px; font-size: 1.2em; }
-        .btn-submit { width: 100%; padding: 15px; background-color: #27ae60; color: white; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; margin-top: 20px; transition: background 0.3s; }
-        .btn-submit:hover { background-color: #219150; }
+        .total-section { background-color: #34495e; color: white; padding: 25px; border-radius: 8px; text-align: center; margin-top: 30px; font-size: 1.3em; transition: background-color 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .total-section span { color: #3498db; font-weight: 700; letter-spacing: 1px; } /* Blue total price */
+        
+        .btn-submit { width: 100%; padding: 18px; background-color: var(--btn-submit); color: white; border: none; border-radius: 6px; font-size: 1.1em; font-weight: 700; cursor: pointer; margin-top: 30px; transition: background 0.3s, transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-submit:hover { filter: brightness(1.05); transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0,0,0,0.2); background-color: var(--btn-hover); }
 
         /* Status Message */
-        #statusMsg { display: none; padding: 15px; margin-bottom: 20px; border-radius: 5px; text-align: center; font-weight: bold; }
+        #statusMsg { display: none; padding: 20px; margin-bottom: 30px; border-radius: 8px; text-align: center; font-weight: 700; border-left: 6px solid var(--accent-blue); animation: fadeIn 0.5s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Utility for styling help text */
+        .help-text { font-size: 0.85em; color: var(--label-color); display: block; margin-top: 10px; font-style: italic; opacity: 0.7; line-height: 1.4; }
+
+        /* Hide specific icons/emojis if they slip in, just in case */
+        .hidden-icon { visibility: hidden; }
     </style>
 </head>
-<body>
+<body id="body">
 
 <div class="container">
-    <h1>🎬 COMCAM Video Production</h1>
-    <p class="subtitle">Request a custom quote for your project</p>
-
-    <!-- Submission Status -->
+    <h1>COMCAM VIDEO PRODUCTION</h1>
+    <!-- Removed subtitle for cleaner look or keep as minimal text -->
+    
     <div id="statusMsg"></div>
 
     <form id="quoteForm" onsubmit="handleSubmit(event)">
         
         <fieldset>
-            <legend>📋 Your Information</legend>
-            <label>Name *</label>
+            <legend>CLIENT INFORMATION</legend>
+            <label>Name <span style="color:var(--accent-blue)">*</span></label>
             <input type="text" name="name" required>
             
-            <label>Email *</label>
+            <label>Email <span style="color:var(--accent-blue)">*</span></label>
             <input type="email" name="email" required>
             
-            <label>Project Name *</label>
+            <label>Project Name <span style="color:var(--accent-blue)">*</span></label>
             <input type="text" name="project_name" required>
             
-            <label>Project Description (Optional)</label>
+            <label>Project Description</label>
             <textarea name="description" rows="3"></textarea>
         </fieldset>
 
         <!-- Updated Filming Section -->
         <fieldset>
-            <legend>🎥 Filming Services</legend>
-            <label>Filming Package *</label>
+            <legend>FILMING SERVICES</legend>
+            <label>Filming Package <span style="color:var(--accent-blue)">*</span></label>
             <div class="options-grid">
                 <label class="option-card active"><input type="radio" name="filming_package" value="4hr" checked onclick="updateActive(this); calculateTotal()"> 4-Hour Half Day ($300)</label>
                 <label class="option-card"><input type="radio" name="filming_package" value="10hr" onclick="updateActive(this); calculateTotal()"> Full Day (10 Hours Max, $500)</label>
@@ -74,17 +147,15 @@
 
             <label>Location Type</label>
             <div class="options-grid">
-                <!-- Updated to 50 miles -->
-                <label class="option-card active"><input type="radio" name="location" value="local" checked onclick="updateActive(this); calculateTotal()"> 📍 Local (within 50 miles)</label>
-                <!-- Updated text for travel box -->
-                <label class="option-card"><input type="radio" name="location" value="travel" onclick="updateActive(this); calculateTotal()"> ✈️ Travel Required (+$250/day base + flight cost factored later)</label>
+                <label class="option-card active"><input type="radio" name="location" value="local" checked onclick="updateActive(this); calculateTotal()"> Local (within 50 miles)</label>
+                <label class="option-card"><input type="radio" name="location" value="travel" onclick="updateActive(this); calculateTotal()"> Travel Required (+$250/day base + flight cost factored later)</label>
             </div>
         </fieldset>
 
         <fieldset>
-            <legend>✂️ Post-Production Services</legend>
+            <legend>POST-PRODUCTION SERVICES</legend>
             
-            <label for="videoDuration">Video Duration (Minutes) *</label>
+            <label for="videoDuration">Video Duration (Minutes) <span style="color:var(--accent-blue)">*</span></label>
             <input type="number" id="videoDuration" name="video_duration" min="0" placeholder="e.g. 15 or 30" oninput="calculateTotal()">
             <span class="help-text">Professional editing rate: ~$150/min base.</span>
 
@@ -99,7 +170,7 @@
 
         <!-- Updated Motion Graphics Section (30s Blocks) -->
         <fieldset>
-            <legend>Motion Graphics / Lower Thirds / Animations</legend>
+            <legend>MOTION GRAPHICS & ANIMATION</legend>
             
             <label for="motionBlocks">Total Animated Duration (Blocks of 30s)</label>
             <input type="number" id="motionBlocks" name="motion_blocks" min="1" placeholder="Enter number of 30s blocks..." oninput="calculateTotal()">
@@ -107,14 +178,14 @@
 
             <label style="margin-top: 20px;">Complexity Level (Price per 30s Block)</label>
             <div class="options-grid">
-                <label class="option-card active"><input type="radio" name="motion_complexity" value="simple" checked onclick="updateActive(this); calculateTotal()"> 💬 Simple ($15 / 30s) - Lower thirds, basic titles</label>
-                <label class="option-card"><input type="radio" name="motion_complexity" value="moderate" onclick="updateActive(this); calculateTotal()"> 🏷️ Moderate ($35 / 30s) - Animated logos, kinetic typography</label>
-                <label class="option-card"><input type="radio" name="motion_complexity" value="complex" onclick="updateActive(this); calculateTotal()"> 💾 Complex ($65 / 30s) - Photo montages, 3D animation</label>
+                <label class="option-card active"><input type="radio" name="motion_complexity" value="simple" checked onclick="updateActive(this); calculateTotal()"> Simple ($15 / 30s) - Lower thirds, basic titles</label>
+                <label class="option-card"><input type="radio" name="motion_complexity" value="moderate" onclick="updateActive(this); calculateTotal()"> Moderate ($35 / 30s) - Animated logos, kinetic typography</label>
+                <label class="option-card"><input type="radio" name="motion_complexity" value="complex" onclick="updateActive(this); calculateTotal()"> Complex ($65 / 30s) - Photo montages, 3D animation</label>
             </div>
         </fieldset>
 
         <fieldset>
-            <legend>🎵 Original Music & Voiceover</legend>
+            <legend>MUSIC & VOICEOVER</legend>
             
             <label>Music Type</label>
             <select name="music_type" onchange="calculateTotal()">
@@ -126,51 +197,50 @@
             <label>Professional Voiceover/Narration Coverage</label>
             <div class="options-grid" style="margin-top:10px;">
                 <label class="option-card active"><input type="radio" name="voiceover" value="none" checked onclick="updateActive(this); calculateTotal()"> None</label>
-                <label class="option-card"><input type="radio" name="voiceover" value="full" onclick="updateActive(this); calculateTotal()"> 🎤 Full Coverage ($300/min)</label>
-                <label class="option-card"><input type="radio" name="voiceover" value="partial" onclick="updateActive(this); calculateTotal()"> 🗣️ Partial (~50%) ($150/min)</label>
+                <label class="option-card"><input type="radio" name="voiceover" value="full" onclick="updateActive(this); calculateTotal()"> Full Coverage ($300/min)</label>
+                <label class="option-card"><input type="radio" name="voiceover" value="partial" onclick="updateActive(this); calculateTotal()"> Partial (~50%) ($150/min)</label>
             </div>
         </fieldset>
 
         <div class="total-section">
-            Estimated Total: $<span id="grandTotal">0</span>
-            <p style="font-size: 0.8em; margin-top: 10px;">* Final quote subject to consultation for project planning.</p>
+            ESTIMATED TOTAL: $<span id="grandTotal">0</span>
+            <p style="font-size: 0.8em; margin-top: 10px; opacity: 0.8;">* Final quote subject to consultation for project planning.</p>
         </div>
 
-        <button type="submit" class="btn-submit">📋 Submit Request</button>
+        <button type="submit" class="btn-submit">SUBMIT REQUEST</button>
     </form>
 </div>
 
 <script>
-    // Visual toggle for radio cards
+    // Visual toggle for radio cards - updated to use blue glow/active classes
     function updateActive(el) {
         const parent = el.closest('.options-grid');
         parent.querySelectorAll('label').forEach(label => label.classList.remove('active'));
         el.closest('label').classList.add('active');
+        
+        // Ensure active class triggers the CSS :active styles (glow/border)
     }
 
     function calculateTotal() {
         let total = 0;
 
-        // 1. Filming Cost (Updated to new rates) [2]
+        // 1. Filming Cost
         const packageType = document.querySelector('input[name="filming_package"]:checked').value;
         const packages = parseFloat(document.getElementById('duration').value) || 1;
         const isTravel = document.querySelector('input[name="location"]:checked').value === 'travel';
         
         let filmingCost = 0;
-        // Fixed rates: 4hr ($300) or 10hr ($500) [2]
         if (packageType === '4hr') filmingCost = 300 * packages;
         else filmingCost = 500 * packages;
 
-        // Travel Base Fee + Note on flights [2]
         if (isTravel) {
             filmingCost += (250 * packages); 
-            // Flights are not added here per the text update: "factored later"
         }
         total += filmingCost;
 
-        // 2. Post-Production (Editing & Add-ons)
+        // 2. Post-Production
         const videoDur = parseFloat(document.getElementById('videoDuration').value) || 0;
-        let postProd = videoDur * 150; // Base editing $150/min
+        let postProd = videoDur * 150; 
 
         if (document.getElementById('colorGrading').checked) postProd += 500;
         if (document.getElementById('soundDesign').checked) postProd += 150;
@@ -178,12 +248,11 @@
 
         total += postProd;
 
-        // 3. Motion Graphics Cost (Updated to 30s Blocks Pricing) [2]
+        // 3. Motion Graphics Cost
         const motionBlocks = parseFloat(document.getElementById('motionBlocks').value) || 0;
         const complexity = document.querySelector('input[name="motion_complexity"]:checked').value;
         
         let motionCost = 0;
-        // Updated rates: Simple ($15/30s), Moderate ($35/30s), Complex ($65/30s)
         if (complexity === 'simple') motionCost = motionBlocks * 15;
         else if (complexity === 'moderate') motionCost = motionBlocks * 35;
         else if (complexity === 'complex') motionCost = motionBlocks * 65;
@@ -196,20 +265,122 @@
         if (musicType === 'jingle') total += 500;
 
         const voiceOver = document.querySelector('input[name="voiceover"]:checked').value;
-        if (voiceOver === 'full') total += (videoDur * 300); // Full coverage per min
-        if (voiceOver === 'partial') total += (videoDur * 150); // Approx 50% per min
+        if (voiceOver === 'full') total += (videoDur * 300); 
+        if (voiceOver === 'partial') total += (videoDur * 150); 
 
         document.getElementById('grandTotal').innerText = total.toLocaleString();
     }
 
-    function handleSubmit(e) {
-        e.preventDefault();
-        const msgBox = document.getElementById('statusMsg');
-        msgBox.style.display = 'block';
-        msgBox.style.backgroundColor = '#d4edda';
-        msgBox.style.color = '#155724';
-        msgBox.innerHTML = "🎉 Request Submitted Successfully!<br>Thank you! We've received your quote request and will review it shortly. You'll hear from us soon to discuss your project and finalize the details.";
+    // Initialize Firebase (matches your COMCAM Dashboard)
+    const firebaseConfig = {
+        apiKey: "AIzaSyDSLjUPp5hBkGDQnrIGL4iWDUNJC-YVXoY",
+        authDomain: "comcam-dashboard.firebaseapp.com",
+        databaseURL: "https://comcam-dashboard-default-rtdb.firebaseio.com",
+        projectId: "comcam-dashboard",
+        storageBucket: "comcam-dashboard.firebasestorage.app",
+        messagingSenderId: "102412134495",
+        appId: "1:102412134495:web:dc80978df11e1c569093ea"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
     }
+    const database = firebase.database();
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        
+        const form = document.getElementById('quoteForm');
+        const submitBtn = form.querySelector('.btn-submit');
+        const msgBox = document.getElementById('statusMsg');
+        
+        submitBtn.disabled = true;
+        submitBtn.innerText = "SUBMITTING...";
+
+        const formData = new FormData(form);
+        const rawTotal = document.getElementById('grandTotal').innerText.replace(/,/g, '');
+        
+        // Build detailed notes including selected checkboxes and options
+        const extras = [];
+        if (document.getElementById('colorCorrection').checked) extras.push('Basic Color Correction');
+        if (document.getElementById('colorGrading').checked) extras.push('Advanced Color Grading');
+        if (document.getElementById('audioMixing').checked) extras.push('Audio Mixing');
+        if (document.getElementById('soundDesign').checked) extras.push('Sound Design/SFX');
+
+        const summaryLine = `[Contact: ${formData.get('email')} | Pkg: ${formData.get('filming_package')} x${formData.get('duration')} | Loc: ${formData.get('location')} | Video: ${formData.get('video_duration') || 0}m | Motion: ${formData.get('motion_blocks') || 0}x (${formData.get('motion_complexity')}) | Music: ${formData.get('music_type')} | VO: ${formData.get('voiceover')}${extras.length ? ' | Extras: ' + extras.join(', ') : ''}]`;
+        const fullNotes = formData.get('description') 
+            ? `${formData.get('description')}\n\n${summaryLine}` 
+            : summaryLine;
+
+        const requestPayload = {
+            task: formData.get('project_name') || 'New Quote Request',
+            clientName: formData.get('name') || 'Unknown Client',
+            email: formData.get('email') || '',
+            notes: fullNotes,
+            totalPrice: parseFloat(rawTotal) || 0,
+            requestDate: new Date().toISOString().split('T')[0],
+            submittedAt: Date.now(),
+            status: 'Not started',
+            priority: 'Standard',
+            read: false
+        };
+
+        try {
+            await database.ref('requests').push(requestPayload);
+
+            msgBox.style.display = 'block';
+            const body = document.getElementById('body');
+            if (body.classList.contains('light-mode')) {
+                msgBox.style.backgroundColor = '#d4edda';
+                msgBox.style.color = '#155724';
+            } else {
+                msgBox.style.backgroundColor = '#2c3e50';
+                msgBox.style.color = '#ecf0f1';
+            }
+            
+            msgBox.innerHTML = "REQUEST SUBMITTED SUCCESSFULLY.<br>THANK YOU! WE'VE RECEIVED YOUR QUOTE REQUEST AND WILL REVIEW IT SHORTLY. YOU'LL HEAR FROM US SOON TO DISCUSS YOUR PROJECT AND FINALIZE THE DETAILS.";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            form.reset();
+            
+            // Reset active visual cards back to defaults
+            document.querySelectorAll('.options-grid').forEach(grid => {
+                grid.querySelectorAll('label').forEach(lbl => lbl.classList.remove('active'));
+                const checkedInput = grid.querySelector('input:checked');
+                if (checkedInput) checkedInput.closest('label').classList.add('active');
+            });
+            calculateTotal();
+        } catch (error) {
+            console.error("Firebase submission error:", error);
+            msgBox.style.display = 'block';
+            msgBox.style.backgroundColor = '#f8d7da';
+            msgBox.style.color = '#721c24';
+            msgBox.innerHTML = "ERROR SUBMITTING REQUEST: " + error.message;
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "SUBMIT REQUEST";
+        }
+    }
+
+    // Theme Toggle Logic (Kept for persistence but hidden)
+    function toggleTheme() {
+        const body = document.getElementById('body');
+        
+        if (body.classList.contains('light-mode')) {
+            body.classList.remove('light-mode');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            body.classList.add('light-mode');
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // Check local storage on load to restore theme preference
+    window.onload = function() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.getElementById('body').classList.add('light-mode');
+        }
+    };
 
     // Initial calc
     calculateTotal();
