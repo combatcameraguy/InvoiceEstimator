@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <style>
-        /* --- THEME VARIABLES (Default Dark Mode) --- */
         :root {
             --bg-primary: #1e272e;
             --container-bg: #1d2327;
@@ -23,13 +22,9 @@
             --btn-submit: #27ae60;
             --btn-hover: #219150;
             --card-border: #4b5660;
-            
-            /* Blue Glow & Icon Colors */
             --accent-blue: #3498db; 
-            --glow-color: rgba(52, 152, 219, 0.3);
         }
 
-        /* --- LIGHT MODE OVERRIDES (Optional) --- */
         body.light-mode {
             --bg-primary: #6C8087;
             --container-bg: white;
@@ -41,23 +36,19 @@
             --input-border: #ccc;
             --btn-submit: #27ae60;
             --card-border: #ddd;
-            
-            /* Light mode accents */
             --accent-blue: #3498db; 
         }
 
-        /* --- MAIN STYLES --- */
         body { 
             background-color: var(--bg-primary); 
-            padding: 20px; margin: 0; color: var(--text-primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s ease, color 0.3s ease;
+            padding: 15px; margin: 0; color: var(--text-primary); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .container { max-width: 800px; margin: 0 auto; background: var(--container-bg); padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: background-color 0.3s ease; }
+        .container { max-width: 85%; margin: 0 auto; background: var(--container-bg); padding: 2rem 1.5rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: background-color 0.3s ease; }
 
-        h1 { color: var(--text-primary); text-align: center; margin-bottom: 10px; border-bottom: 2px solid var(--accent-blue); display: inline-block; padding-bottom: 8px; margin-top: 0; }
+        h1 { color: var(--text-primary); text-align: center; margin-bottom: 10px; border-bottom: 2px solid var(--accent-blue); display: inline-block; padding-bottom: 8px; margin-top: 0; width: 100%; box-sizing: border-box; }
         
-        /* Form Styles */
-        fieldset { border: 1px solid var(--fieldset-border); padding: 30px; margin-bottom: 30px; border-radius: 12px; background-color: var(--fieldset-bg); transition: background-color 0.3s ease, border-color 0.3s ease; }
+        fieldset { border: 1px solid var(--fieldset-border); padding: 25px 20px; margin-bottom: 30px; border-radius: 12px; background-color: var(--fieldset-bg); transition: background-color 0.3s ease, border-color 0.3s ease; }
         legend { font-weight: 700; color: var(--text-primary); padding: 0 15px; font-size: 1.2em; letter-spacing: 0.5px; }
         
         label { display: block; margin-top: 20px; font-weight: 600; color: var(--label-color); cursor: pointer; font-size: 0.95em; transition: color 0.3s ease; }
@@ -75,44 +66,31 @@
             transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Option Cards */
         .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 5px; }
         .option-card { border: 2px solid var(--card-border); padding: 20px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; position: relative; text-align: center; background: var(--container-bg); color: var(--text-primary); box-shadow: none; }
         .option-card:hover { 
             border-color: var(--accent-blue); 
             background-color: #2a363c; 
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15); /* Subtle Blue Glow */
         }
         .option-card input { display: none; } 
-        .option-card.active { border-color: var(--accent-blue); background-color: var(--container-bg); color: var(--text-primary); box-shadow: 0 4px 8px rgba(52, 152, 219, 0.2); /* Blue Glow when Active */ }
+        .option-card.active { border-color: var(--accent-blue); background-color: var(--container-bg); color: var(--text-primary); }
 
-        /* Totals & Buttons */
-        .total-section { background-color: #34495e; color: white; padding: 25px; border-radius: 8px; text-align: center; margin-top: 30px; font-size: 1.3em; transition: background-color 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .total-section span { color: #3498db; font-weight: 700; letter-spacing: 1px; } /* Blue total price */
+        .total-section { background-color: #34495e; color: white; padding: 25px; border-radius: 8px; text-align: center; margin-top: 30px; font-size: 1.3em; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .total-section span { color: #3498db; font-weight: 700; letter-spacing: 1px; } 
         
         .btn-submit { width: 100%; padding: 18px; background-color: var(--btn-submit); color: white; border: none; border-radius: 6px; font-size: 1.1em; font-weight: 700; cursor: pointer; margin-top: 30px; transition: background 0.3s, transform 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn-submit:hover { filter: brightness(1.05); transform: translateY(-2px); box-shadow: 0 6px 8px rgba(0,0,0,0.2); background-color: var(--btn-hover); }
+        .btn-submit:hover { filter: brightness(1.05); transform: translateY(-2px); background-color: var(--btn-hover); }
 
-        /* Status Message */
         #statusMsg { display: none; padding: 20px; margin-bottom: 30px; border-radius: 8px; text-align: center; font-weight: 700; border-left: 6px solid var(--accent-blue); animation: fadeIn 0.5s ease; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Utility for styling help text */
         .help-text { font-size: 0.85em; color: var(--label-color); display: block; margin-top: 10px; font-style: italic; opacity: 0.7; line-height: 1.4; }
-
-        /* Hide specific icons/emojis if they slip in, just in case */
-        .hidden-icon { visibility: hidden; }
     </style>
 </head>
 <body id="body">
 
 <div class="container">
     <h1>COMCAM VIDEO PRODUCTION</h1>
-    <!-- Removed subtitle for cleaner look or keep as minimal text -->
     
     <div id="statusMsg"></div>
 
@@ -133,7 +111,6 @@
             <textarea name="description" rows="3"></textarea>
         </fieldset>
 
-        <!-- Updated Filming Section -->
         <fieldset>
             <legend>FILMING SERVICES</legend>
             <label>Filming Package <span style="color:var(--accent-blue)">*</span></label>
@@ -168,7 +145,6 @@
             </div>
         </fieldset>
 
-        <!-- Updated Motion Graphics Section (30s Blocks) -->
         <fieldset>
             <legend>MOTION GRAPHICS & ANIMATION</legend>
             
@@ -194,11 +170,10 @@
                 <option value="jingle">Jingle - Short Branded Tune ($500)</option>
             </select>
 
-            <label>Professional Voiceover/Narration Coverage</label>
+            <label style="margin-top: 20px;">Voiceover Coverage</label>
             <div class="options-grid" style="margin-top:10px;">
                 <label class="option-card active"><input type="radio" name="voiceover" value="none" checked onclick="updateActive(this); calculateTotal()"> None</label>
-                <label class="option-card"><input type="radio" name="voiceover" value="full" onclick="updateActive(this); calculateTotal()"> Full Coverage ($300/min)</label>
-                <label class="option-card"><input type="radio" name="voiceover" value="partial" onclick="updateActive(this); calculateTotal()"> Partial (~50%) ($150/min)</label>
+                <label class="option-card"><input type="radio" name="voiceover" value="full" onclick="updateActive(this); calculateTotal()"> Voiceover ($150/min)</label>
             </div>
         </fieldset>
 
@@ -212,19 +187,16 @@
 </div>
 
 <script>
-    // Visual toggle for radio cards - updated to use blue glow/active classes
     function updateActive(el) {
         const parent = el.closest('.options-grid');
         parent.querySelectorAll('label').forEach(label => label.classList.remove('active'));
         el.closest('label').classList.add('active');
-        
-        // Ensure active class triggers the CSS :active styles (glow/border)
     }
 
     function calculateTotal() {
         let total = 0;
 
-        // 1. Filming Cost
+        // Filming Cost
         const packageType = document.querySelector('input[name="filming_package"]:checked').value;
         const packages = parseFloat(document.getElementById('duration').value) || 1;
         const isTravel = document.querySelector('input[name="location"]:checked').value === 'travel';
@@ -238,7 +210,7 @@
         }
         total += filmingCost;
 
-        // 2. Post-Production
+        // Post-Production
         const videoDur = parseFloat(document.getElementById('videoDuration').value) || 0;
         let postProd = videoDur * 150; 
 
@@ -248,7 +220,7 @@
 
         total += postProd;
 
-        // 3. Motion Graphics Cost
+        // Motion Graphics Cost
         const motionBlocks = parseFloat(document.getElementById('motionBlocks').value) || 0;
         const complexity = document.querySelector('input[name="motion_complexity"]:checked').value;
         
@@ -259,19 +231,19 @@
         
         total += motionCost;
 
-        // 4. Music & Voiceover
+        // Music & Voiceover
         const musicType = document.querySelector('select[name="music_type"]').value;
         if (musicType === 'bed') total += 200;
         if (musicType === 'jingle') total += 500;
 
+        // Updated Logic: Check for 'full' value (now mapped to $150/min in script)
         const voiceOver = document.querySelector('input[name="voiceover"]:checked').value;
-        if (voiceOver === 'full') total += (videoDur * 300); 
-        if (voiceOver === 'partial') total += (videoDur * 150); 
+        if (voiceOver === 'full') total += (videoDur * 150); 
 
         document.getElementById('grandTotal').innerText = total.toLocaleString();
     }
 
-    // Initialize Firebase (matches your COMCAM Dashboard)
+    // Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyDSLjUPp5hBkGDQnrIGL4iWDUNJC-YVXoY",
         authDomain: "comcam-dashboard.firebaseapp.com",
@@ -300,14 +272,15 @@
         const formData = new FormData(form);
         const rawTotal = document.getElementById('grandTotal').innerText.replace(/,/g, '');
         
-        // Build detailed notes including selected checkboxes and options
         const extras = [];
         if (document.getElementById('colorCorrection').checked) extras.push('Basic Color Correction');
         if (document.getElementById('colorGrading').checked) extras.push('Advanced Color Grading');
         if (document.getElementById('audioMixing').checked) extras.push('Audio Mixing');
         if (document.getElementById('soundDesign').checked) extras.push('Sound Design/SFX');
 
-        const summaryLine = `[Contact: ${formData.get('email')} | Pkg: ${formData.get('filming_package')} x${formData.get('duration')} | Loc: ${formData.get('location')} | Video: ${formData.get('video_duration') || 0}m | Motion: ${formData.get('motion_blocks') || 0}x (${formData.get('motion_complexity')}) | Music: ${formData.get('music_type')} | VO: ${formData.get('voiceover')}${extras.length ? ' | Extras: ' + extras.join(', ') : ''}]`;
+        const voiceOverText = document.querySelector('input[name="voiceover"]:checked').value === 'full' ? 'Voiceover ($150/min)' : 'None';
+        
+        const summaryLine = `[Contact: ${formData.get('email')} | Pkg: ${formData.get('filming_package')} x${formData.get('duration')} | Loc: ${formData.get('location')} | Video: ${formData.get('video_duration') || 0}m | Motion: ${formData.get('motion_blocks') || 0}x (${formData.get('motion_complexity')}) | Music: ${formData.get('music_type')} | VO: ${voiceOverText}${extras.length ? ' | Extras: ' + extras.join(', ') : ''}]`;
         const fullNotes = formData.get('description') 
             ? `${formData.get('description')}\n\n${summaryLine}` 
             : summaryLine;
@@ -329,20 +302,20 @@
             await database.ref('requests').push(requestPayload);
 
             msgBox.style.display = 'block';
+            msgBox.style.borderLeftColor = '#27ae60';
             const body = document.getElementById('body');
             if (body.classList.contains('light-mode')) {
                 msgBox.style.backgroundColor = '#d4edda';
                 msgBox.style.color = '#155724';
             } else {
                 msgBox.style.backgroundColor = '#2c3e50';
-                msgBox.style.color = '#ecf0f1';
+                msgBox.style.color = '#2ecc71';
             }
             
             msgBox.innerHTML = "REQUEST SUBMITTED SUCCESSFULLY.<br>THANK YOU! WE'VE RECEIVED YOUR QUOTE REQUEST AND WILL REVIEW IT SHORTLY. YOU'LL HEAR FROM US SOON TO DISCUSS YOUR PROJECT AND FINALIZE THE DETAILS.";
             window.scrollTo({ top: 0, behavior: 'smooth' });
             form.reset();
             
-            // Reset active visual cards back to defaults
             document.querySelectorAll('.options-grid').forEach(grid => {
                 grid.querySelectorAll('label').forEach(lbl => lbl.classList.remove('active'));
                 const checkedInput = grid.querySelector('input:checked');
@@ -361,29 +334,13 @@
         }
     }
 
-    // Theme Toggle Logic (Kept for persistence but hidden)
-    function toggleTheme() {
-        const body = document.getElementById('body');
-        
-        if (body.classList.contains('light-mode')) {
-            body.classList.remove('light-mode');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            body.classList.add('light-mode');
-            localStorage.setItem('theme', 'light');
-        }
-    }
-
-    // Check local storage on load to restore theme preference
+    // Theme Logic
     window.onload = function() {
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'light') {
             document.getElementById('body').classList.add('light-mode');
         }
     };
-
-    // Initial calc
-    calculateTotal();
 </script>
 
 </body>
