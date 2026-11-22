@@ -204,6 +204,15 @@
 </div>
 
 <script>
+    function generateInvoiceNumber(date = new Date()) {
+        const year = String(date.getFullYear()).slice(-2);
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}${month}${day}-${hours}${minutes}`;
+    }
+
     function updateActive(el) {
         const parent = el.closest('.options-grid');
         parent.querySelectorAll('label').forEach(label => label.classList.remove('active'));
@@ -302,14 +311,18 @@
             ? `${formData.get('description')}\n\n${summaryLine}` 
             : summaryLine;
 
+        const now = new Date();
+        const invoiceNumber = generateInvoiceNumber(now);
+
         const requestPayload = {
             task: formData.get('project_name') || 'New Quote Request',
             clientName: formData.get('name') || 'Unknown Client',
             email: formData.get('email') || '',
             notes: fullNotes,
+            invoiceNumber: invoiceNumber,
             totalPrice: parseFloat(rawTotal) || 0,
-            requestDate: new Date().toISOString().split('T')[0],
-            submittedAt: Date.now(),
+            requestDate: now.toISOString().split('T')[0],
+            submittedAt: now.getTime(),
             status: 'Not started',
             priority: 'Standard',
             read: false
@@ -329,7 +342,7 @@
                 msgBox.style.color = '#2ecc71';
             }
             
-            msgBox.innerHTML = "REQUEST SUBMITTED SUCCESSFULLY.<br>THANK YOU! WE'VE RECEIVED YOUR QUOTE REQUEST AND WILL REVIEW IT SHORTLY. YOU'LL HEAR FROM US SOON TO DISCUSS YOUR PROJECT AND FINALIZE THE DETAILS.";
+            msgBox.innerHTML = `REQUEST SUBMITTED SUCCESSFULLY (REF #${invoiceNumber}).<br>THANK YOU! WE'VE RECEIVED YOUR QUOTE REQUEST AND WILL REVIEW IT SHORTLY. YOU'LL HEAR FROM US SOON TO DISCUSS YOUR PROJECT AND FINALIZE THE DETAILS.`;
             window.scrollTo({ top: 0, behavior: 'smooth' });
             form.reset();
             
