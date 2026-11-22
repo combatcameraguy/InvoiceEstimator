@@ -154,11 +154,23 @@
             <span class="help-text">Professional editing rate: ~$150/min base.</span>
 
             <label style="margin-top: 20px;">Additional Services</label>
-            <div style="margin-left: 10px; margin-top: 5px;">
-                <input type="checkbox" id="colorCorrection" checked onclick="calculateTotal()"> <label for="colorCorrection" style="display:inline;"> Basic Color Correction (Auto-calculated)</label><br>
-                <input type="checkbox" id="colorGrading" onclick="calculateTotal()"> <label for="colorGrading" style="display:inline;"> Advanced Color Grading ($500 flat)</label><br>
-                <input type="checkbox" id="audioMixing" onclick="calculateTotal()"> <label for="audioMixing" style="display:inline;"> Audio Mixing ($45/min)</label><br>
-                <input type="checkbox" id="soundDesign" onclick="calculateTotal()"> <label for="soundDesign" style="display:inline;"> Sound Design/SFX ($150 flat)</label>
+            <div style="margin-left: 10px; margin-top: 10px; display: flex; flex-direction: column; gap: 14px;">
+                <label for="colorCorrection" style="display: flex; align-items: center; gap: 12px; margin-top: 0; font-size: 1.05em;">
+                    <input type="checkbox" id="colorCorrection" checked onclick="calculateTotal()" style="width: 24px; height: 24px; accent-color: var(--accent-blue); cursor: pointer; flex-shrink: 0;">
+                    <span>Basic Color Correction (Auto-calculated)</span>
+                </label>
+                <label for="colorGrading" style="display: flex; align-items: center; gap: 12px; margin-top: 0; font-size: 1.05em;">
+                    <input type="checkbox" id="colorGrading" onclick="calculateTotal()" style="width: 24px; height: 24px; accent-color: var(--accent-blue); cursor: pointer; flex-shrink: 0;">
+                    <span>Advanced Color Grading ($500 flat)</span>
+                </label>
+                <label for="audioMixing" style="display: flex; align-items: center; gap: 12px; margin-top: 0; font-size: 1.05em;">
+                    <input type="checkbox" id="audioMixing" onclick="calculateTotal()" style="width: 24px; height: 24px; accent-color: var(--accent-blue); cursor: pointer; flex-shrink: 0;">
+                    <span>Audio Mixing ($45/min)</span>
+                </label>
+                <label for="soundDesign" style="display: flex; align-items: center; gap: 12px; margin-top: 0; font-size: 1.05em;">
+                    <input type="checkbox" id="soundDesign" onclick="calculateTotal()" style="width: 24px; height: 24px; accent-color: var(--accent-blue); cursor: pointer; flex-shrink: 0;">
+                    <span>Sound Design/SFX ($150 flat)</span>
+                </label>
             </div>
         </fieldset>
 
